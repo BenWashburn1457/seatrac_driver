@@ -1,21 +1,10 @@
-# README #
+# FRoSt Seatrac Driver #
 
-This README would normally document whatever steps are necessary to get your application up and running.
-
-### What is this repository for? ###
-
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+This is a fork of the seatrac_driver written by Pierre Narvor (https://gitlab.ensta-bretagne.fr/narvorpi/seatrac_driver). This fork was made to add other message types, such as MSG_OWAY or MSG_OWAYU which are used to send cutom data between beacons.
 
 ### How do I get set up? ###
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+Follow the instructions on README in the seatrac_driver folder to setup.
 
 ### Contribution guidelines ###
 
