@@ -60,8 +60,6 @@ class MyDriver : public SeatracDriver
 int main(int argc, char *argv[])
 {
 
-    test_h();
-    
     std::string serial_port;
     if (argc == 1) { serial_port = "/dev/ttyUSB0"; }
     else { serial_port = argv[1]; }

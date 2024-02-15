@@ -4,6 +4,9 @@
 #include <seatrac_driver/SeatracTypes.h>
 #include <seatrac_driver/messages/MessageBase.h>
 
+//TODO: Put Data Receive decoder here
+
+
 // namespace narval { namespace seatrac { namespace messages {
 
 // struct DataReceive : public Message<DataReceive>
@@ -32,12 +35,6 @@
 //     os << "PingResp : " << msg.acoFix;
 //     return os;
 // }
-
-#include <stdio.h>
-
-void test_h() { //TODO: remove when done testing
-    std::cout << "this is a dat receive h file test" << std::endl;
-}
 
 #endif //_DEF_SEATRAC_DRIVER_MESSAGES_DATA_RECEIVE_H_
 
