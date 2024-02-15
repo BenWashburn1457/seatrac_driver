@@ -33,7 +33,7 @@ echo "export CMAKE_PREFIX_PATH=<your_install_location_full_path>:\$CMAKE_PREFIX_
 ```
 
 ### Dependancies
-* Boost: if you do not have boost on your system, you can install it with '''sudo apt-get install libboost-all-dev'''
+* Boost: if you do not have boost on your system, you can install it with ```sudo apt-get install libboost-all-dev```
 
 ## Using in your C++ project
 
