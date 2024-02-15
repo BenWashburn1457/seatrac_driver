@@ -38,7 +38,7 @@ class MyDriver : public SeatracDriver
         message.msgId = CID_DAT_SEND; //message type is send data
         message.destId = BEACON_ALL;  //send it to all beacons regardless of id
         message.msgType = MSG_OWAYU;  //send the data away to other beacons with usbl information
-        message.packetLen = 31; //the length of data packet
+        message.packetLen = std::min(length, (uint8_t)31); //31; //the length of data packet
 
         //copy the bytes (chars) from data into our message structure
         std::memcpy(message.packetData, data, 31);//std::min(length, 31));
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
         getline(std::cin, message_txt);
         if (message_txt.length() == 0) { break; }
 
-        seatrac.send_data((const uint8_t*)message_txt.data(), 31);
+        seatrac.send_data((const uint8_t*)message_txt.data(), message_txt.size());
     }
 
     //getchar();
