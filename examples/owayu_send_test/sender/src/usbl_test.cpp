@@ -41,7 +41,7 @@ class MyDriver : public SeatracDriver
         message.packetLen = std::min(length, (uint8_t)31); //31; //the length of data packet
 
         //copy the bytes (chars) from data into our message structure
-        std::memcpy(message.packetData, data, 31);//std::min(length, 31));
+        std::memcpy(message.packetData, data, std::min(length, (uint8_t)31));
 
         //fill the remaining bytes with 0x00. Might not be necessary
         //std::memset(message.packetData + sizeof(data), 0x00, sizeof(message.packetData) - sizeof(data));
