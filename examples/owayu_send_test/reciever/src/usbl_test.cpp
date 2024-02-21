@@ -55,11 +55,16 @@ class MyDriver : public SeatracDriver
                     //copy the bytes (chars) from data into our message structure
                     //std::memcpy((uint8_t*)&message, data.data(), std::min(sizeof(data), sizeof(message)));
 
-                    std::cout << "message: ";
-                    for (auto byte: data) {
-                        printf("%x ", byte);
-                    }
-                    std::cout << std::endl;
+                    // std::cout << "message: ";
+                    // for (auto byte: data) {
+                    //     printf("%x ", byte);
+                    // }
+                    // std::cout << std::endl;
+
+                    messages::DataReceive response;
+                    response = data;
+                    std::cout << response << std::endl;
+                    
                 }
                 break;
             case CID_STATUS:

@@ -21,7 +21,7 @@ struct DataReceive : public Message<DataReceive>
     uint8_t packetLen;  // The number of bytes sent in the DAT acoustic
                         // packet. Valid values are from 0 to 31.
                         // A value of 0 indicate no data is present.
-    uint8_t[31] packetData; // The array of data received in the DAT acoustic packet
+    uint8_t packetData[31]; // The array of data received in the DAT acoustic packet
 
     DataReceive& operator=(const std::vector<uint8_t>& other)
     {
@@ -31,9 +31,9 @@ struct DataReceive : public Message<DataReceive>
         uint8_t acoFixSize = acoFix.assign(other.size() - 1, other.data() + 1);
 
         const uint8_t* p   = other.data() + 1 + acoFixSize; //pointer to start of rest of message
-        this.ackFlag = p[0];
-        this.packetLen = p[1];
-        std::memcpy(this.packetData, p+2, this.packetLen);
+        this->ackFlag = p[0];
+        this->packetLen = p[1];
+        std::memcpy(this->packetData, p+2, this->packetLen);
 
         return *this;
     }
@@ -48,10 +48,10 @@ struct DataReceive : public Message<DataReceive>
 inline std::ostream& operator<<(std::ostream& os,
                                 const narval::seatrac::messages::DataReceive& msg)
 {
-    os << "DataReceive : " 
+    os << "\nDataReceive: \n" 
        << msg.acoFix
-       << "\nRequires Acknowledgement: " << msg.ackFlag;
-       << "\nPacket Length: " << msg.packetLen
+       << "\nRequires Acknowledgement: " << msg.ackFlag
+       << "\nPacket Length: " << (int)msg.packetLen
        << "\nPacket Data: ";
     for(uint8_t i=0; i<msg.packetLen; i++) {
         os << msg.packetData[i];
