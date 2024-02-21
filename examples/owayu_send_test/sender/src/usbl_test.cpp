@@ -12,13 +12,13 @@ using namespace narval::seatrac;
 https://www.seascapesubsea.com/downloads/Blueprint-Subsea-SeaTrac-Developer-Guide.pdf
 Seatrac dev manual page 116
 */
-struct CidDatSendMessage {
-    CID_E msgId;
-    BID_E destId;
-    AMSGTYPE_E msgType;
-    uint8_t packetLen;
-    uint8_t packetData[31];
-}__attribute__((packed));
+// struct CidDatSendMessage {
+//     CID_E msgId;
+//     BID_E destId;
+//     AMSGTYPE_E msgType;
+//     uint8_t packetLen;
+//     uint8_t packetData[31];
+// }__attribute__((packed));
 
 
 class MyDriver : public SeatracDriver
@@ -33,9 +33,8 @@ class MyDriver : public SeatracDriver
         std::cout << "ping_beacon start" << std::endl;
 
         //create a message packet to send
-        CidDatSendMessage message;
+        messages::DataSend message;
         
-        message.msgId = CID_DAT_SEND; //message type is send data
         message.destId = BEACON_ALL;  //send it to all beacons regardless of id
         message.msgType = MSG_OWAYU;  //send the data away to other beacons with usbl information
         message.packetLen = std::min(length, (uint8_t)31); //31; //the length of data packet

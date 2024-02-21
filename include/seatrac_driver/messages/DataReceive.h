@@ -4,9 +4,6 @@
 #include <seatrac_driver/SeatracTypes.h>
 #include <seatrac_driver/messages/MessageBase.h>
 
-//TODO: Put Data Receive decoder here
-
-
 namespace narval { namespace seatrac { namespace messages {
 
 struct DataReceive : public Message<DataReceive>
@@ -50,11 +47,19 @@ inline std::ostream& operator<<(std::ostream& os,
 {
     os << "\nDataReceive: \n" 
        << msg.acoFix
-       << "\nRequires Acknowledgement: " << msg.ackFlag
+       << "\nRequires Acknowledgement: " << (msg.ackFlag ? "True":"False")
        << "\nPacket Length: " << (int)msg.packetLen
-       << "\nPacket Data: ";
+       << "\nPacket Data:\n- (char):\t";
     for(uint8_t i=0; i<msg.packetLen; i++) {
         os << msg.packetData[i];
+    }
+    os << "\n- (hex):\t";
+    for(uint8_t i=0; i<msg.packetLen; i++) {
+        printf("%02X ", msg.packetData[i]);
+    }
+    os << "\n- (int):\t";
+    for(uint8_t i=0; i<msg.packetLen; i++) {
+        printf("%d ", msg.packetData[i]);
     }
     return os;
 }
