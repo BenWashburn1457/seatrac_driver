@@ -20,8 +20,8 @@ inline std::ostream& operator<<(std::ostream& os,
                                 const narval::seatrac::messages::DataSend& msg)
 {
     os << "DataSend: " 
-       << "- target:\t" << msg.destId
-       << "- msg type:\t" << msg.msgType
+       << "\n- target:\t" << msg.destId
+       << "\n- msg type:\t" << msg.msgType
        << "\nPacket Length: " << (int)msg.packetLen
        << "\nPacket Data:\n- (char):\t";
     for(uint8_t i=0; i<msg.packetLen; i++) {
