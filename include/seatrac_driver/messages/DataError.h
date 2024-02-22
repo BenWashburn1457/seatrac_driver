@@ -1,6 +1,9 @@
 #ifndef _DEF_SEATRAC_DRIVER_MESSAGES_DATA_ERROR_H_
 #define _DEF_SEATRAC_DRIVER_MESSAGES_DATA_ERROR_H_
 
+#include <seatrac_driver/SeatracTypes.h>
+#include <seatrac_driver/messages/MessageBase.h>
+
 namespace narval { namespace seatrac { namespace messages {
 
 struct DataError : public Message<DataError> {

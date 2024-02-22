@@ -1,9 +1,15 @@
 #ifndef _DEF_SEATRAC_DRIVER_MESSAGES_DATA_SEND_H_
 #define _DEF_SEATRAC_DRIVER_MESSAGES_DATA_SEND_H_
 
+#include <seatrac_driver/SeatracTypes.h>
+#include <seatrac_driver/messages/MessageBase.h>
+
 namespace narval { namespace seatrac { namespace messages {
 
 struct DataSend : public Message<DataSend> {
+
+    using Message<DataSend>::operator=;
+
     static const CID_E Identifier = CID_DAT_SEND;
     BID_E destId;
     AMSGTYPE_E msgType;
@@ -22,7 +28,7 @@ inline std::ostream& operator<<(std::ostream& os,
     os << "DataSend: " 
        << "\n- target:\t" << msg.destId
        << "\n- msg type:\t" << msg.msgType
-       << "\nPacket Length: " << (int)msg.packetLen
+       << "\n- packet length:\t" << (int)msg.packetLen
        << "\nPacket Data:\n- (char):\t";
     for(uint8_t i=0; i<msg.packetLen; i++) {
         os << msg.packetData[i];

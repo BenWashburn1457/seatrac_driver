@@ -21,11 +21,13 @@ class MyDriver : public SeatracDriver
 
         messages::DataSend message;   //create a message packet to send
         
-        message.destId = BEACON_ALL;  //send it to all beacons regardless of id
-        message.msgType = MSG_OWAYU;  //send the data away to other beacons with usbl information
+        message.destId    = BEACON_ALL;     //send it to all beacons regardless of id
+        message.msgType   = MSG_OWAYU;      //send the data away to other beacons with usbl information
         message.packetLen = std::min(data_length, (uint8_t)31); //the length of data packet
 
         std::memcpy(message.packetData, data, message.packetLen); //copy the bytes (chars) from data into our message structure
+
+        std::cout << message << std::endl;
 
         this->send(sizeof(message), (const uint8_t*)&message); 
 

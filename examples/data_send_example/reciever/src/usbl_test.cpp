@@ -7,14 +7,6 @@
 using namespace narval::seatrac;
 
 
-struct CidDatRecieveMessage {
-    CID_E msgId;
-    ACOFIX_T acoFix;
-    bool ackFlag;
-    uint8_t packetLen;
-    uint8_t packetData[31];
-}__attribute__((packed));
-
 class MyDriver : public SeatracDriver
 {
     public:
@@ -30,43 +22,39 @@ class MyDriver : public SeatracDriver
             default:
                 std::cout << "Got message : " << msgId << std::endl << std::flush;
                 break;
+
+            case CID_DAT_RECEIVE:
+                {
+                    std::cout << "Got message : " << msgId << std::endl << std::flush;
+                
+                    messages::DataReceive response;
+                    response = data;
+                    std::cout << response << std::endl;
+                }
+                break;
+            case CID_DAT_ERROR:
+                {
+                    messages::DataError response;
+                    response = data;
+                    std::cout << response << std::endl;
+                }
+                break;
+
             case CID_PING_ERROR:
                 {
                     messages::PingError response;
                     response = data;
                     std::cout << response << std::endl;
-                    //this->ping_beacon(response.beaconId);
                 }
                 break;
             case CID_PING_RESP:
-                // std::cout << "Got a Ping Response" << std::endl << std::flush;
                 {
                     messages::PingResp response;
                     response = data;
                     std::cout << response << std::endl;
-                    //this->ping_beacon(response.acoFix.srcId);
                 }
                 break;
-            case CID_DAT_RECEIVE:
-                {
-                    std::cout << "Got message : " << msgId << std::endl;
-                    CidDatRecieveMessage message;
-                    
-                    //copy the bytes (chars) from data into our message structure
-                    //std::memcpy((uint8_t*)&message, data.data(), std::min(sizeof(data), sizeof(message)));
 
-                    // std::cout << "message: ";
-                    // for (auto byte: data) {
-                    //     printf("%x ", byte);
-                    // }
-                    // std::cout << std::endl;
-
-                    messages::DataReceive response;
-                    response = data;
-                    std::cout << response << std::endl;
-                    
-                }
-                break;
             case CID_STATUS:
                 // too many STATUS messages so bypassing display.
                 break;
@@ -84,8 +72,6 @@ int main(int argc, char *argv[])
     MyDriver seatrac(serial_port);
 
     std::cout << "waiting for message" << std::endl;
-    
-    //command::ping_send(seatrac, BEACON_ID_10);
 
     getchar();
 
