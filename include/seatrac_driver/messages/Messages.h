@@ -21,6 +21,10 @@
 #include <seatrac_driver/messages/PingResp.h>
 #include <seatrac_driver/messages/PingError.h>
 
+#include <seatrac_driver/messages/DataSend.h>
+#include <seatrac_driver/messages/DataReceive.h>
+#include <seatrac_driver/messages/DataError.h>
+
 #include <seatrac_driver/messages/XcvrAnalyse.h>
 #include <seatrac_driver/messages/XcvrStatus.h>
 #include <seatrac_driver/messages/XcvrReceptionError.h>

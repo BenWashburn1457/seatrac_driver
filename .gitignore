@@ -8,5 +8,6 @@ __pycache__
 *.tif
 *.ply
 *.pyc
+*.vscode
 output
 

@@ -2,7 +2,7 @@
 
 This is a driver for the Blueprint Subsea Seatrac USBL receiver.
 
-It is a fork of the seatrac_driver written by Pierre Narvor (https://gitlab.ensta-bretagne.fr/narvorpi/seatrac_driver). This fork was made to add other message types, such as MSG_OWAY or MSG_OWAYU which are used to send cutom data between beacons.
+It is a fork of the seatrac_driver written by Pierre Narvor (https://gitlab.ensta-bretagne.fr/narvorpi/seatrac_driver). This fork was made to add the DataSend, DataReceive, and DataError message types
 
 ## Installation
 

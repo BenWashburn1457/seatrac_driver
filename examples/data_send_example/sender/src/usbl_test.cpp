@@ -1,10 +1,10 @@
 #include <iostream>
-#include <stdio.h>
 
 #include <seatrac_driver/SeatracDriver.h>
 #include <seatrac_driver/messages/Messages.h>
 #include <seatrac_driver/commands.h>
 using namespace narval::seatrac;
+
 
 class MyDriver : public SeatracDriver
 {
@@ -14,14 +14,23 @@ class MyDriver : public SeatracDriver
         SeatracDriver(serialPort)
     {}
 
-    void ping_beacon(BID_E target, AMSGTYPE_E pingType = MSG_REQU) {
-        std::cout << "ping_beacon start" << std::endl;
-        messages::PingSend::Request req;
-        req.target   = target;
-        req.pingType = pingType;
+    void send_data(const BID_E destId, 
+                   const AMSGTYPE_E msgType, 
+                   const uint8_t data_length, 
+                   const uint8_t* data) {
 
-        this->send(sizeof(req), (const uint8_t*)&req);
-        std::cout << "ping_beacon end" << std::endl;
+        messages::DataSend message;   //create a message packet to send
+        
+        message.destId    = BEACON_ALL;     //send it to all beacons regardless of id
+        message.msgType   = MSG_OWAYU;      //send the data away to other beacons with usbl information
+        message.packetLen = std::min(data_length, (uint8_t)31); //the length of data packet
+
+        std::memcpy(message.packetData, data, message.packetLen); //copy the bytes (chars) from data into our message structure
+
+        std::cout << message << std::endl;
+
+        this->send(sizeof(message), (const uint8_t*)&message); 
+
     }
 
     // this method is called on any message returned by the beacon.
@@ -37,7 +46,7 @@ class MyDriver : public SeatracDriver
                     messages::PingError response;
                     response = data;
                     std::cout << response << std::endl;
-                    this->ping_beacon(response.beaconId);
+                    //this->ping_beacon(response.beaconId);
                 }
                 break;
             case CID_PING_RESP:
@@ -47,7 +56,7 @@ class MyDriver : public SeatracDriver
                     messages::PingResp response;
                     response = data;
                     std::cout << response << std::endl;
-                    this->ping_beacon(response.acoFix.srcId);
+                    //this->ping_beacon(response.acoFix.srcId);
                 }
                 break;
             case CID_STATUS:
@@ -59,16 +68,29 @@ class MyDriver : public SeatracDriver
 
 int main(int argc, char *argv[])
 {
-
+    //set serial to command line input if given
     std::string serial_port;
     if (argc == 1) { serial_port = "/dev/ttyUSB0"; }
     else { serial_port = argv[1]; }
 
     MyDriver seatrac(serial_port);
-    
-    command::ping_send(seatrac, BEACON_ID_10);
 
-    getchar();
+    std::string message_txt(31, 'x');
+
+    for (int i=0; i<50; i++) {
+        std::cout << "message text: " << std::flush;
+        getline(std::cin, message_txt);
+        if (message_txt.length() == 0) break;
+
+        seatrac.send_data(
+            BEACON_ALL,
+            MSG_OWAYU, //other valid types: MSG_OWAY, MSG_REQ, MSG_REQU, MSG_REQX
+            (uint8_t)message_txt.size(),
+            (const uint8_t*)message_txt.data()
+          );
+    }
+
+    //getchar();
 
     return 0;
 }
