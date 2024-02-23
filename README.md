@@ -10,7 +10,7 @@ This is a standard cmake package. It is to be installed in a location pointed by
 the CMAKE_PREFIX_PATH environment variable.
 
 ```
-git clone git@bitbucket.org:frostlab/seatrac_driver.git && cd seatrac_driver
+git clone https://Clayton314@bitbucket.org/frostlab/seatrac_driver.git
 
 mkdir build && cd build
 
