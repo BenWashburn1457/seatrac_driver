@@ -21,15 +21,15 @@ class MyDriver : public SeatracDriver
 
         messages::DataSend message;   //create a message packet to send
         
-        message.destId    = BEACON_ALL;     //send it to all beacons regardless of id
-        message.msgType   = MSG_OWAYU;      //send the data away to other beacons with usbl information
-        message.packetLen = std::min(data_length, (uint8_t)31); //the length of data packet
+        message.destId    = destId;     //beacon it's sending the data to
+        message.msgType   = msgType;      //type of message being sent
+        message.packetLen = std::min(data_length, (uint8_t)31); //the length of data packet (must be 31 bytes or smaller)
 
         std::memcpy(message.packetData, data, message.packetLen); //copy the bytes (chars) from data into our message structure
 
-        std::cout << message << std::endl;
+        std::cout << message << std::endl; //opperator overload - prints message content 
 
-        this->send(sizeof(message), (const uint8_t*)&message); 
+        this->send(sizeof(message), (const uint8_t*)&message); //prepares data to send over serial line
 
     }
 
@@ -40,25 +40,39 @@ class MyDriver : public SeatracDriver
             default:
                 std::cout << "Got message : " << msgId << std::endl << std::flush;
                 break;
+
+            case CID_DAT_RECEIVE:
+                {
+                    std::cout << "Got message : " << msgId << std::endl << std::flush;
+                
+                    messages::DataReceive response;     //struct that contains response fields
+                    response = data;                    //operator overload fills in response struct with correct data
+                    std::cout << response << std::endl; //operator overload prints out response data
+                }
+                break;
+            case CID_DAT_ERROR:
+                {
+                    messages::DataError response;
+                    response = data;
+                    std::cout << response << std::endl;
+                }
+                break;
+
             case CID_PING_ERROR:
                 {
-                    std::cout << "case ping error" << std::endl;
                     messages::PingError response;
                     response = data;
                     std::cout << response << std::endl;
-                    //this->ping_beacon(response.beaconId);
                 }
                 break;
             case CID_PING_RESP:
-                // std::cout << "Got a Ping Response" << std::endl << std::flush;
                 {
-                    std::cout << "case ping response" << std::endl;
                     messages::PingResp response;
                     response = data;
                     std::cout << response << std::endl;
-                    //this->ping_beacon(response.acoFix.srcId);
                 }
                 break;
+
             case CID_STATUS:
                 // too many STATUS messages so bypassing display.
                 break;

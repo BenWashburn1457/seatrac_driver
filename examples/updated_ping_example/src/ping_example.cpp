@@ -31,25 +31,39 @@ class MyDriver : public SeatracDriver
             default:
                 std::cout << "Got message : " << msgId << std::endl << std::flush;
                 break;
+
+            case CID_DAT_RECEIVE:
+                {
+                    std::cout << "Got message : " << msgId << std::endl << std::flush;
+                
+                    messages::DataReceive response;
+                    response = data;
+                    std::cout << response << std::endl;
+                }
+                break;
+            case CID_DAT_ERROR:
+                {
+                    messages::DataError response;
+                    response = data;
+                    std::cout << response << std::endl;
+                }
+                break;
+
             case CID_PING_ERROR:
                 {
-                    std::cout << "case ping error" << std::endl;
                     messages::PingError response;
                     response = data;
                     std::cout << response << std::endl;
-                    this->ping_beacon(response.beaconId);
                 }
                 break;
             case CID_PING_RESP:
-                // std::cout << "Got a Ping Response" << std::endl << std::flush;
                 {
-                    std::cout << "case ping response" << std::endl;
                     messages::PingResp response;
                     response = data;
                     std::cout << response << std::endl;
-                    this->ping_beacon(response.acoFix.srcId);
                 }
                 break;
+
             case CID_STATUS:
                 // too many STATUS messages so bypassing display.
                 break;
