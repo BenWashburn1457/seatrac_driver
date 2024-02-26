@@ -3,7 +3,7 @@ project(seatrac_simple_pinger_example VERSION 0.1)
 
 find_package(seatrac_driver REQUIRED)
 
-add_executable(usbl_test
-    src/usbl_test.cpp
+add_executable(data_sender_example
+    src/data_sender_example.cpp
 )
-target_link_libraries(usbl_test PRIVATE seatrac_driver)
+target_link_libraries(data_sender_example PRIVATE seatrac_driver)
