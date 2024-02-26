@@ -1,2 +1,2 @@
 
-sudo ./build/usbl_test $1
+sudo ./build/data_sender_example $1

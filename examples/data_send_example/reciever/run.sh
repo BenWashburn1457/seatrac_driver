@@ -1,2 +1,2 @@
 
-sudo ./build/usbl_test $1
+sudo ./build/reciever_example $1
