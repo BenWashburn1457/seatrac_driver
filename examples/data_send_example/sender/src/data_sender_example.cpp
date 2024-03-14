@@ -43,8 +43,6 @@ class MyDriver : public SeatracDriver
 
             case CID_DAT_RECEIVE:
                 {
-                    std::cout << "Got message : " << msgId << std::endl << std::flush;
-                
                     messages::DataReceive response;     //struct that contains response fields
                     response = data;                    //operator overload fills in response struct with correct data
                     std::cout << response << std::endl; //operator overload prints out response data
