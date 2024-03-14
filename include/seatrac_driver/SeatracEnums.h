@@ -781,6 +781,24 @@ inline std::ostream& operator<<(std::ostream& os, narval::seatrac::CST_E statusC
     return os;
 }
 
+inline std::ostream& operator<<(std::ostream& os, narval::seatrac::AMSGTYPE_E msgType)
+{
+    using namespace narval::seatrac;
+    switch(msgType) {
+         default: os << "Unknown CID : " << (uint8_t)msgType;             break;
+         case MSG_OWAY:             os << "MSG_OWAY";           break;
+         case MSG_OWAYU:            os << "MSG_OWAYU";          break;
+         case MSG_REQ:              os << "MSG_REQ";            break;
+         case MSG_RESP:             os << "MSG_RESP";           break;
+         case MSG_REQU:             os << "MSG_REQU";           break;
+         case MSG_RESPU:            os << "MSG_RESPU";          break;
+         case MSG_REQX:             os << "MSG_REQX";           break;
+         case MSG_RESPX:            os << "MSG_RESPX";          break;
+         case MSG_UNKNOWN:          os << "MSG_UNKNOWN";        break;
+    }
+    return os;
+}
+
 inline std::ostream& operator<<(std::ostream& os, narval::seatrac::STATUS_BITS_E flags)
 {
     using namespace narval::seatrac;
