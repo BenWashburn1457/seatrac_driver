@@ -32,8 +32,13 @@ If not, be sure to add it (for example with the following line :)
 echo "export CMAKE_PREFIX_PATH=<your_install_location_full_path>:\$CMAKE_PREFIX_PATH" >> .bashrc
 ```
 
-### Dependancies
-* Boost: if you do not have boost on your system, you can install it with ```sudo apt-get install libboost-all-dev```
+### Dependancy Issues
+The driver may not run as intended if these dependancies have not been previously installed:
+* rtac_asio: if you get errors where the driver cannot find the librtac_asio.so 
+  file, you may need to install rtac_asio separately. To install, follow the instructions at 
+  https://github.com/pnarvor/rtac_asio. After installing, reinstall the seatrac driver.
+* Boost: if you do not have boost on your system, you can install it with 
+  ```sudo apt-get install libboost-all-dev```
 
 ## Using in your C++ project
 
@@ -84,3 +89,13 @@ class MySeatracDriver : public seatrac::SeatracDriver
     }
 };
 ```
+
+### Blueprint Subsea Seatrac Developer Guide
+
+This driver follows the guidlines found in the Seatrac Developer Guide (linked below).
+The manual is a good reference for definitions of variables and types. In addition, it
+defines other modem actions not yet included in this driver, which may be helpfull if 
+you need different functionality for your project.
+
+(https://www.seascapesubsea.com/downloads/Blueprint-Subsea-SeaTrac-Developer-Guide.pdf)
+
