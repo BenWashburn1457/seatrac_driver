@@ -7,7 +7,7 @@ if(NOT TARGET rtac_asio)
     include(FetchContent)
     FetchContent_Declare(rtac_asio
         GIT_REPOSITORY https://github.com/pnarvor/rtac_asio.git
-        GIT_TAG        v1.0
+        GIT_TAG        master
     )
     FetchContent_MakeAvailable(rtac_asio)
 endif()
