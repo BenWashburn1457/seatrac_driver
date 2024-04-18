@@ -15,7 +15,7 @@ using namespace narval::seatrac;
     Contains helper functions to quickly calibrate the acoustic beacon.
 */
 
-namespace narval { namespace seatrac { namespace command {
+namespace narval { namespace seatrac { namespace calibration {
 
     struct CalibrationActionMsg {
         CID_E msgId;
@@ -31,9 +31,11 @@ namespace narval { namespace seatrac { namespace command {
     class CalibrationDriver: public SeatracDriver  {
     public:
 
-        MyDriver(const std::string& serialPort = "/dev/ttyUSB0") :
+        MyDriver(std::ostream& out, const std::string& serialPort = "/dev/ttyUSB0") :
             SeatracDriver(serialPort)
-        {}
+        {
+            print_out = out;
+        }
 
         bool printCalData = false;
 
@@ -53,13 +55,15 @@ namespace narval { namespace seatrac { namespace command {
                     } break;
             }
         }
+    private:
+        std::ostream* print_out;
     }
 
 
     //Call this function to run a calibration command
     //Function walks user through a terminal calibration procedure
     //Take note that this is a blocking function
-    bool CalibrateAccelerometer(std::ostream& out, std::istream& in, std::string serial_port) {
+    bool calibrateAccelerometer(std::ostream& out, std::istream& in, std::string serial_port) {
 
         CalibrationDriver calSeatrac(serial_port);
 
@@ -68,7 +72,7 @@ namespace narval { namespace seatrac { namespace command {
 
 
         char input[50];
-        out << "--- Seatrac Modem Accelerometer Calibration ---" << std::endl
+        out << "--- Seatrac USBL Modem Accelerometer Calibration ---" << std::endl
             << "This calibration procedure may be performed out of water" //TODO: check if true
             << "Please hold the modem in an upright position (with the modem cable facing down)" << std::endl
             << "When ready, Press Enter to continue";
@@ -77,13 +81,13 @@ namespace narval { namespace seatrac { namespace command {
         //TODO: finish calibration sequence
     }
 
-    bool CalibrateMagnetometer(std::ostream& out, std::istream& in, std::string serial_port) {
+    bool calibrateMagnetometer(std::ostream& out, std::istream& in, std::string serial_port) {
 
         CalibrationDriver calSeatrac(serial_port);
 
 
         char input[50];
-        out << "--- Seatrac Modem Accelerometer Calibration ---" << std::endl
+        out << "--- Seatrac USBL Modem Magnetometer Calibration ---" << std::endl
             << "This calibration procedure may be performed out of water" //TODO: check if true
             << "Please hold the modem in an upright position (with the modem cable facing down)" << std::endl
             << "When ready, Press Enter to continue";
