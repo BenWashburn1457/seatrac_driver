@@ -57,12 +57,12 @@ namespace narval { namespace seatrac { namespace calibration {
 
     inline void printCalFeedback(std::ostream& out, const messages::Status& status) {
         if (status.contentType & ACC_CAL) {
-            out << "\tXmin:" << status.accCalibration.accLimMinX
-                << "\tXmax:" << status.accCalibration.accLimMaxX
-                << "\tYmin:" << status.accCalibration.accLimMinY
-                << "\tYmax:" << status.accCalibration.accLimMaxY
-                << "\tZmin:" << status.accCalibration.accLimMinZ
-                << "\tZmax:" << status.accCalibration.accLimMaxZ
+            out << "\tXmin: " << status.accCalibration.accLimMinX
+                << "\tXmax: " << status.accCalibration.accLimMaxX
+                << "\tYmin: " << status.accCalibration.accLimMinY
+                << "\tYmax: " << status.accCalibration.accLimMaxY
+                << "\tZmin: " << status.accCalibration.accLimMinZ
+                << "\tZmax: " << status.accCalibration.accLimMaxZ
                 << std::endl;
         }
         else if (status.contentType & MAG_CAL) {
@@ -77,18 +77,16 @@ namespace narval { namespace seatrac { namespace calibration {
     
     //Call this function to run a calibration command
     //Function walks user through a terminal calibration procedure
-    //Take note that this is a blocking function
+    //Ensure that printCalFeedback is being called in the status 
+    //This is a blocking function
     bool calibrateAccelerometer(SeatracDriver& seatrac, std::ostream& out, std::istream& in) {
 
         char input[50];
-        out << "--- Seatrac USBL Modem Accelerometer Calibration ---" << std::endl
-            << "This calibration procedure may be performed out of water" //TODO: check if true
-            << "Please hold the modem in an upright position (with the modem cable facing down)" << std::endl
-            << "When ready, Press Enter to continue";
-        in.get();
-        out << "Slowly rotate the beacon around the verticle axis";
-        //TODO: finish calibration sequence
-        return true;
+        out << "--- Seatrac Modem Accelerometer Calibration ---" << std::endl
+            << "Instructions:" << std::endl
+            << "You will find the minimum and maximum values for each of X, Y, and Z directions." << std::endl
+            << "The values will be printed in the terminal line by line like this:" << std::endl
+            << "\tExample:" << std::endl;
     }
 
     bool calibrateMagnetometer(std::ostream& out, std::istream& in, std::string serial_port) {
