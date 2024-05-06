@@ -40,14 +40,7 @@ int main(int argc, char *argv[])
 
     MyDriver seatrac(serial_port);
 
-    getchar();
-    calibration::turnOnAccCalFeedback(seatrac);
-    getchar();
-    calibration::turnOffCalFeedback(seatrac);
-    getchar();
-    calibration::turnOnMagCalFeedback(seatrac);
-    getchar();
-    calibration::turnOffCalFeedback(seatrac);
+    calibration::calibrateAccelerometer(seatrac, std::cout, std::cin, false);
 
     return 0;
 }

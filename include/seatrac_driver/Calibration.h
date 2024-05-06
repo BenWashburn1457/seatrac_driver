@@ -56,13 +56,14 @@ namespace narval { namespace seatrac { namespace calibration {
     //print calibration data if calibration fields exist
 
     inline void printCalFeedback(std::ostream& out, const messages::Status& status) {
+        
         if (status.contentType & ACC_CAL) {
-            out << "\tXmin: " << status.accCalibration.accLimMinX
-                << "\tXmax: " << status.accCalibration.accLimMaxX
-                << "\tYmin: " << status.accCalibration.accLimMinY
-                << "\tYmax: " << status.accCalibration.accLimMaxY
-                << "\tZmin: " << status.accCalibration.accLimMinZ
-                << "\tZmax: " << status.accCalibration.accLimMaxZ
+            out << "\tXmin:  " << status.accCalibration.accLimMinX
+                << "\tXmax:  " << status.accCalibration.accLimMaxX
+                << "\tYmin:  " << status.accCalibration.accLimMinY
+                << "\tYmax:  " << status.accCalibration.accLimMaxY
+                << "\tZmin:  " << status.accCalibration.accLimMinZ
+                << "\tZmax:  " << status.accCalibration.accLimMaxZ
                 << std::endl;
         }
         else if (status.contentType & MAG_CAL) {
@@ -79,15 +80,41 @@ namespace narval { namespace seatrac { namespace calibration {
     //Function walks user through a terminal calibration procedure
     //Ensure that printCalFeedback is being called in the status 
     //This is a blocking function
-    bool calibrateAccelerometer(SeatracDriver& seatrac, std::ostream& out, std::istream& in) {
+    inline void calibrateAccelerometer(SeatracDriver& seatrac, std::ostream& out, std::istream& in, bool saveToEEPROM = false) {
+        
+        out << "---\tSeatrac Accelerometer Calibration\t---" << std::endl
+            << "Press enter to begin. Once the X Y and Z limits are found, press enter again to finish and apply changes." << std::endl;        
+        in.get();
 
-        char input[50];
-        out << "--- Seatrac Modem Accelerometer Calibration ---" << std::endl
-            << "Instructions:" << std::endl
-            << "You will find the minimum and maximum values for each of X, Y, and Z directions." << std::endl
-            << "The values will be printed in the terminal line by line like this:" << std::endl
-            << "\tExample:" << std::endl;
+        //reset the calibration values
+        CalibrationActionMsg resetCal;
+        resetCal.msgId = CID_CAL_ACTION;
+        resetCal.action = CAL_ACC_RESET;
+        seatrac.send(sizeof(resetCal), (const uint8_t*)&resetCal);
+        
+        //print cal values and wait for user to finish calibration procedure
+        turnOnAccCalFeedback(seatrac);
+        in.get();
+        turnOffCalFeedback(seatrac);
+
+        //calculate the new calibration parameters & save to seatrac RAM
+        CalibrationActionMsg calculateCal;
+        calculateCal.msgId = CID_CAL_ACTION;
+        calculateCal.action = CAL_ACC_CALC;
+        seatrac.send(sizeof(calculateCal), (const uint8_t*)&calculateCal);
+        out << "Calibration values calculated and saved to RAM" << std::endl;
+
+        //save the calibration settings to perminant EEPROM
+        if(saveToEEPROM) {
+            messages::SettingsSave::Request saveSettings;
+            seatrac.send(sizeof(saveSettings), (const uint8_t*)&saveSettings);
+            out << "Calibration values saved to EEPROM" << std::endl;
+        }
+
+        out << "Accelerometer calibration complete. Settings saved.";
+
     }
+
 
     bool calibrateMagnetometer(std::ostream& out, std::istream& in, std::string serial_port) {
 
