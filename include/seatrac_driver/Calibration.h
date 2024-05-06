@@ -82,6 +82,7 @@ namespace narval { namespace seatrac { namespace calibration {
     //This is a blocking function
     inline void calibrateAccelerometer(SeatracDriver& seatrac, std::ostream& out, std::istream& in, bool saveToEEPROM = false) {
         
+        turnOffCalFeedback(seatrac);
         out << "---\tSeatrac Accelerometer Calibration\t---" << std::endl
             << "Press enter to begin. Once the X Y and Z limits are found, press enter again to finish and apply changes." << std::endl;        
         in.get();
@@ -116,9 +117,8 @@ namespace narval { namespace seatrac { namespace calibration {
     }
 
 
-    bool calibrateMagnetometer(std::ostream& out, std::istream& in, std::string serial_port) {
-
-        char input[50];
+    bool calibrateMagnetometer(SeatracDriver& seatrac, std::ostream& out, std::istream& in) {
+        turnOffCalFeedback(seatrac);
         out << "--- Seatrac USBL Modem Magnetometer Calibration ---" << std::endl
             << "This calibration procedure may be performed out of water" //TODO: check if true
             << "Please hold the modem in an upright position (with the modem cable facing down)" << std::endl
