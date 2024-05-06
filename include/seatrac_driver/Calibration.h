@@ -91,7 +91,7 @@ namespace narval { namespace seatrac { namespace calibration {
         CalibrationActionMsg resetCal;
         resetCal.msgId = CID_CAL_ACTION;
         resetCal.action = CAL_ACC_RESET;
-        seatrac.send(sizeof(resetCal), (const uint8_t*)&resetCal);
+        //seatrac.send(sizeof(resetCal), (const uint8_t*)&resetCal);
         
         //print cal values and wait for user to finish calibration procedure
         turnOnAccCalFeedback(seatrac);
