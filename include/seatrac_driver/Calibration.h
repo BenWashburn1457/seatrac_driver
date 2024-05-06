@@ -67,9 +67,9 @@ namespace narval { namespace seatrac { namespace calibration {
         }
         else if (status.contentType & MAG_CAL) {
             uint8_t mag_progress = status.magCalibration.magCalBuf;
-            std::string progressBar(' ',50);
+            std::string progressBar(50, ' ');
             for(uint8_t i=0; i<mag_progress/2; i++) progressBar[i] = '=';
-            out << "MagCal: " << mag_progress << "%\t" 
+            out << "MagCal: " << int(mag_progress) << "%\t" 
                 << "|" << progressBar << "|" << std::endl;
         }
     }
