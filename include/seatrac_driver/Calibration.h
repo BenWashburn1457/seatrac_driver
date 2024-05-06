@@ -25,7 +25,7 @@ namespace narval { namespace seatrac { namespace calibration {
     struct CalibrationResponse {
         CID_E msgId;
         CST_E status;
-    }__attribute__((packet));
+    }__attribute__((packed));
 
     inline void turnOnAccCalFeedback(SeatracDriver& seatrac, STATUS_BITS_E prevStatusBits=static_cast<STATUS_BITS_E>(0x0), STATUSMODE_E statusMode=STATUS_MODE_10HZ) {
         messages::StatusConfigSet::Request statusSet;
@@ -88,6 +88,7 @@ namespace narval { namespace seatrac { namespace calibration {
         in.get();
         out << "Slowly rotate the beacon around the verticle axis";
         //TODO: finish calibration sequence
+        return true;
     }
 
     bool calibrateMagnetometer(std::ostream& out, std::istream& in, std::string serial_port) {
@@ -100,6 +101,7 @@ namespace narval { namespace seatrac { namespace calibration {
         in.get();
         out << "Slowly rotate the beacon around the verticle axis";
         //TODO: finish calibration sequence
+        return true;
     }
 
 }; //namespace calibration
