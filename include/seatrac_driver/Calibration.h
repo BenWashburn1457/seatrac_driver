@@ -86,7 +86,7 @@ namespace narval { namespace seatrac { namespace calibration {
             << "Please hold the modem in an upright position (with the modem cable facing down)" << std::endl
             << "When ready, Press Enter to continue";
         in.get();
-        out << "Slowly rotate the beacon around the verticle axis"
+        out << "Slowly rotate the beacon around the verticle axis";
         //TODO: finish calibration sequence
     }
 
@@ -98,7 +98,7 @@ namespace narval { namespace seatrac { namespace calibration {
             << "Please hold the modem in an upright position (with the modem cable facing down)" << std::endl
             << "When ready, Press Enter to continue";
         in.get();
-        out << "Slowly rotate the beacon around the verticle axis"
+        out << "Slowly rotate the beacon around the verticle axis";
         //TODO: finish calibration sequence
     }
 
