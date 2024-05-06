@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include <cstdio>
+#include <chrono>
+#include <thread>
 #include <seatrac_driver/SeatracTypes.h>
 #include <seatrac_driver/messages/MessageBase.h>
 #include <seatrac_driver/SeatracDriver.h>
@@ -10,6 +12,8 @@
 #include <seatrac_driver/messages/StatusConfigSet.h>
 
 using namespace narval::seatrac;
+using namespace std::this_thread; // sleep_for, sleep_until
+using namespace std::chrono; // nanoseconds, system_clock, seconds
 
 /*
     Contains helper functions to quickly calibrate the acoustic beacon.
@@ -91,12 +95,15 @@ namespace narval { namespace seatrac { namespace calibration {
         CalibrationActionMsg resetCal;
         resetCal.msgId = CID_CAL_ACTION;
         resetCal.action = CAL_ACC_RESET;
-        //seatrac.send(sizeof(resetCal), (const uint8_t*)&resetCal);
-        
+        seatrac.send(sizeof(resetCal), (const uint8_t*)&resetCal);
+        sleep_for(nanoseconds(1000));
+
         //print cal values and wait for user to finish calibration procedure
         turnOnAccCalFeedback(seatrac);
+        sleep_for(nanoseconds(1000));
         in.get();
         turnOffCalFeedback(seatrac);
+        sleep_for(nanoseconds(1000));
 
         //calculate the new calibration parameters & save to seatrac RAM
         CalibrationActionMsg calculateCal;
@@ -104,6 +111,7 @@ namespace narval { namespace seatrac { namespace calibration {
         calculateCal.action = CAL_ACC_CALC;
         seatrac.send(sizeof(calculateCal), (const uint8_t*)&calculateCal);
         out << "Calibration values calculated and saved to RAM" << std::endl;
+        sleep_for(nanoseconds(1000));
 
         //save the calibration settings to perminant EEPROM
         if(saveToEEPROM) {
