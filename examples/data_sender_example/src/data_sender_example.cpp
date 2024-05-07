@@ -1,9 +1,14 @@
 #include <iostream>
 
+#include <chrono>
+#include <thread>
 #include <seatrac_driver/SeatracDriver.h>
 #include <seatrac_driver/messages/Messages.h>
 #include <seatrac_driver/commands.h>
+
 using namespace narval::seatrac;
+using namespace std::this_thread; // sleep_for, sleep_until
+using namespace std::chrono; // nanoseconds, system_clock, seconds
 
 
 class MyDriver : public SeatracDriver
@@ -100,6 +105,7 @@ int main(int argc, char *argv[])
             (uint8_t)message_txt.size(),
             (const uint8_t*)message_txt.data()
           );
+        sleep_for(milliseconds(25));
     }
 
     //getchar();
