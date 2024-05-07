@@ -91,7 +91,7 @@ namespace narval { namespace seatrac { namespace calibration {
     inline void calibrateAccelerometer(SeatracDriver& seatrac, std::ostream& out, std::istream& in, bool saveToEEPROM = false) {
         
         turnOffCalFeedback(seatrac);
-        sleep_for(nanoseconds(10000));
+        sleep_for(nanoseconds(1000000));
         out << "---\tSeatrac Accelerometer Calibration\t---" << std::endl
             << "Press enter to begin. Once the X Y and Z limits are found, press enter again to finish and apply changes." << std::endl;        
         in.get();
@@ -101,14 +101,14 @@ namespace narval { namespace seatrac { namespace calibration {
         resetCal.msgId = CID_CAL_ACTION;
         resetCal.action = CAL_ACC_RESET;
         seatrac.send(sizeof(resetCal), (const uint8_t*)&resetCal);
-        sleep_for(nanoseconds(10000));
+        sleep_for(nanoseconds(1000000));
 
         //print cal values and wait for user to finish calibration procedure
         turnOnAccCalFeedback(seatrac);
-        sleep_for(nanoseconds(10000));
+        sleep_for(nanoseconds(1000000));
         in.get();
         turnOffCalFeedback(seatrac);
-        sleep_for(nanoseconds(10000));
+        sleep_for(nanoseconds(1000000));
 
         //calculate the new calibration parameters & save to seatrac RAM
         CalibrationActionMsg calculateCal;
@@ -116,14 +116,14 @@ namespace narval { namespace seatrac { namespace calibration {
         calculateCal.action = CAL_ACC_CALC;
         seatrac.send(sizeof(calculateCal), (const uint8_t*)&calculateCal);
         out << "Calibration values calculated and saved to RAM." << std::endl;
-        sleep_for(nanoseconds(10000));
+        sleep_for(nanoseconds(1000000));
 
         //save the calibration settings to perminant EEPROM
         if(saveToEEPROM) {
             messages::SettingsSave::Request saveSettings;
             seatrac.send(sizeof(saveSettings), (const uint8_t*)&saveSettings);
             out << "Calibration values saved to EEPROM." << std::endl;
-            sleep_for(nanoseconds(10000));
+            sleep_for(nanoseconds(1000000));
         } else {
             out << "Calibration values have not been saved to EEPROM." << std::endl;
         }
@@ -135,7 +135,7 @@ namespace narval { namespace seatrac { namespace calibration {
 
     inline void calibrateMagnetometer(SeatracDriver& seatrac, std::ostream& out, std::istream& in, bool saveToEEPROM = false) {
         turnOffCalFeedback(seatrac);
-        sleep_for(nanoseconds(10000));
+        sleep_for(nanoseconds(1000000));
         out << "---\tSeatrac Magnetometer Calibration\t---" << std::endl
             << "Press enter to begin. Once the progress has reached 100%, press enter again to finish and apply changes." << std::endl;        
         in.get();
@@ -145,14 +145,14 @@ namespace narval { namespace seatrac { namespace calibration {
         resetCal.msgId = CID_CAL_ACTION;
         resetCal.action = CAL_MAG_RESET;
         seatrac.send(sizeof(resetCal), (const uint8_t*)&resetCal);
-        sleep_for(nanoseconds(10000));
+        sleep_for(nanoseconds(1000000));
 
         //print cal values and wait for user to finish calibration procedure
         turnOnMagCalFeedback(seatrac);
-        sleep_for(nanoseconds(10000));
+        sleep_for(nanoseconds(1000000));
         in.get();
         turnOffCalFeedback(seatrac);
-        sleep_for(nanoseconds(10000));
+        sleep_for(nanoseconds(1000000));
 
         //calculate the new calibration parameters & save to seatrac RAM
         CalibrationActionMsg calculateCal;
@@ -160,14 +160,14 @@ namespace narval { namespace seatrac { namespace calibration {
         calculateCal.action = CAL_MAG_CALC;
         seatrac.send(sizeof(calculateCal), (const uint8_t*)&calculateCal);
         out << "Calibration values calculated and saved to RAM." << std::endl;
-        sleep_for(nanoseconds(10000));
+        sleep_for(nanoseconds(1000000));
 
         //save the calibration settings to perminant EEPROM
         if(saveToEEPROM) {
             messages::SettingsSave::Request saveSettings;
             seatrac.send(sizeof(saveSettings), (const uint8_t*)&saveSettings);
             out << "Calibration values saved to EEPROM." << std::endl;
-            sleep_for(nanoseconds(10000));
+            sleep_for(nanoseconds(1000000));
         } else {
             out << "Calibration values have not been saved to EEPROM." << std::endl;
         }
