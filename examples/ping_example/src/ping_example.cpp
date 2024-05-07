@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
 
     MyDriver seatrac(serial_port);    
 
-    seatrac.ping_beacon(BEACON_ID_10, MSG_REQU);
+    seatrac.ping_beacon(BEACON_ID_15, MSG_REQU);
 
     getchar();
 

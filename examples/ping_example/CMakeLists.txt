@@ -17,4 +17,4 @@ endif()
 add_executable(ping_example
     src/ping_example.cpp
 )
-target_link_libraries(usbl_test PRIVATE seatrac_driver)
+target_link_libraries(ping_example PRIVATE seatrac_driver)
