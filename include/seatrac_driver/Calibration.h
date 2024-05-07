@@ -115,15 +115,17 @@ namespace narval { namespace seatrac { namespace calibration {
         calculateCal.msgId = CID_CAL_ACTION;
         calculateCal.action = CAL_ACC_CALC;
         seatrac.send(sizeof(calculateCal), (const uint8_t*)&calculateCal);
-        out << "Calibration values calculated and saved to RAM" << std::endl;
+        out << "Calibration values calculated and saved to RAM." << std::endl;
         sleep_for(nanoseconds(1000));
 
         //save the calibration settings to perminant EEPROM
         if(saveToEEPROM) {
             messages::SettingsSave::Request saveSettings;
             seatrac.send(sizeof(saveSettings), (const uint8_t*)&saveSettings);
-            out << "Calibration values saved to EEPROM" << std::endl;
+            out << "Calibration values saved to EEPROM." << std::endl;
             sleep_for(nanoseconds(1000));
+        } else {
+            out << "Calibration values have not been saved to EEPROM." << std::endl;
         }
 
         out << "Accelerometer calibration complete. Settings saved." << std::endl;
@@ -157,15 +159,17 @@ namespace narval { namespace seatrac { namespace calibration {
         calculateCal.msgId = CID_CAL_ACTION;
         calculateCal.action = CAL_MAG_CALC;
         seatrac.send(sizeof(calculateCal), (const uint8_t*)&calculateCal);
-        out << "Calibration values calculated and saved to RAM" << std::endl;
+        out << "Calibration values calculated and saved to RAM." << std::endl;
         sleep_for(nanoseconds(1000));
 
         //save the calibration settings to perminant EEPROM
         if(saveToEEPROM) {
             messages::SettingsSave::Request saveSettings;
             seatrac.send(sizeof(saveSettings), (const uint8_t*)&saveSettings);
-            out << "Calibration values saved to EEPROM" << std::endl;
+            out << "Calibration values saved to EEPROM." << std::endl;
             sleep_for(nanoseconds(1000));
+        } else {
+            out << "Calibration values have not been saved to EEPROM.";
         }
 
         out << "Magnetometer calibration complete. Settings saved." << std::endl;

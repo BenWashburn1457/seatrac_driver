@@ -41,6 +41,11 @@ int main(int argc, char *argv[])
     MyDriver seatrac(serial_port);
 
     calibration::calibrateAccelerometer(seatrac, std::cout, std::cin, false);
+    calibration::calibrateMagnetometer(seatrac, std::cout, std::cin, false);
+    //NOTE: This example calls calibrate with saveToEEPROM=false.
+    //      That means the calibration settings will be lost once the 
+    //      the seatrac beacon is powered off. Change saveToEEPROM to
+    //      true to save the calibration settings perminantly.
 
     return 0;
 }
