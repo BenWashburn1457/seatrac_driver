@@ -6,7 +6,6 @@
 #include <seatrac_driver/commands.h>
 using namespace narval::seatrac;
 
-
 class MyDriver : public SeatracDriver
 {
     public:
@@ -14,6 +13,14 @@ class MyDriver : public SeatracDriver
     MyDriver(const std::string& serialPort = "/dev/ttyUSB0") :
         SeatracDriver(serialPort)
     {}
+
+    void ping_beacon(BID_E target, AMSGTYPE_E pingType = MSG_REQU) {
+        messages::PingSend::Request req;
+        req.target   = target;
+        req.pingType = pingType;
+
+        this->send(sizeof(req), (const uint8_t*)&req);
+    }
 
     // this method is called on any message returned by the beacon.
     void on_message(CID_E msgId, const std::vector<uint8_t>& data) {
@@ -23,55 +30,53 @@ class MyDriver : public SeatracDriver
                 std::cout << "Got message : " << msgId << std::endl << std::flush;
                 break;
 
-            case CID_DAT_RECEIVE:
-                {
-                    std::cout << "Got message : " << msgId << std::endl << std::flush;
-                
-                    messages::DataReceive response;     //struct that contains response fields
+            case CID_PING_RESP: {
+                    messages::PingResp response;       //struct that contains response fields
                     response = data;                    //operator overload fills in response struct with correct data
                     std::cout << response << std::endl; //operator overload prints out response data
-                }
-                break;
-            case CID_DAT_ERROR:
-                {
-                    messages::DataError response;
-                    response = data;
-                    std::cout << response << std::endl;
-                }
-                break;
 
-            case CID_PING_ERROR:
-                {
+                    //sends another ping to the other beacon, creating a feedback loop between ping sends and ping responses
+                    this->ping_beacon(response.acoFix.srcId, MSG_REQU);
+
+                } break;
+            case CID_PING_ERROR: {
                     messages::PingError response;
                     response = data;
                     std::cout << response << std::endl;
-                }
-                break;
-            case CID_PING_RESP:
-                {
-                    messages::PingResp response;
+
+                    this->ping_beacon(response.beaconId, MSG_REQU);
+
+                } break;
+
+            case CID_DAT_RECEIVE: {               
+                    messages::DataReceive response;
+                    response = data;
+                    std::cout << response << std::endl; 
+                } break;
+            case CID_DAT_ERROR: {
+                    messages::DataError response;
                     response = data;
                     std::cout << response << std::endl;
-                }
-                break;
+                } break;
 
             case CID_STATUS:
                 // too many STATUS messages so bypassing display.
                 break;
         }
+
     }
 };
 
 int main(int argc, char *argv[])
 {
-    
+
     std::string serial_port;
     if (argc == 1) { serial_port = "/dev/ttyUSB0"; }
     else { serial_port = argv[1]; }
 
-    MyDriver seatrac(serial_port);
+    MyDriver seatrac(serial_port);    
 
-    std::cout << "waiting for message" << std::endl;
+    seatrac.ping_beacon(BEACON_ID_10, MSG_REQU);
 
     getchar();
 
