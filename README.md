@@ -102,9 +102,9 @@ This driver comes with 3 different examples detailing different ways you can use
 driver. If this is your first time using this driver, these examples are the best place
 to start. 
 ### To run each example: 
-1. connect 2 beacons to your computer and place them together in water. 
-2. navigate to the examples folder `seatrac_driver/examples/<example_name>`
-3. build the example:
+1. Connect 2 beacons to your computer and place them together in water. 
+2. Navigate to the examples folder `seatrac_driver/examples/<example_name>`
+3. Build the example:
     ```
     mkdir build && cd build
     cmake ..
@@ -117,7 +117,7 @@ to start.
     example is setup to find and download the driver from the github 
     repository (using FetchContent) if it cannot find an existing 
     seatrac_driver on your computer.
-4. run the example: `./build/<example_name> <serial_port>`
+4. Run the example: `./build/<example_name> <serial_port>`
     The executable name is the same as example folder name.
     It takes one arguement - the serial port that the seatrac modem is 
     connected too (for example `/dev/ttyUSB0`).
@@ -131,7 +131,8 @@ to start.
     Run data_send_example in two terminals connected to each beacon.
     Demonstrates the DAT protocol. You will be prompted to enter a string. It will 
     then send the string (up to 31 chars) to the other beacon, which will print 
-    the data recieved in it's own terminal.
+    the data recieved in it's own terminal. Press enter without typing a message
+    to close the program.
 * calibration_example:
     Performs two example calibration sequences for the accelerometer and the 
     magnetometer. In this example, the calibration settings are only saved to RAM
