@@ -131,7 +131,8 @@ to start.
     Run data_send_example in two terminals connected to each beacon.
     Demonstrates the DAT protocol. You will be prompted to enter a string. It will 
     then send the string (up to 31 chars) to the other beacon, which will print 
-    the data recieved in it's own terminal.
+    the data recieved in it's own terminal. Press enter without typing a message
+    to close the program.
 * calibration_example:
     Performs two example calibration sequences for the accelerometer and the 
     magnetometer. In this example, the calibration settings are only saved to RAM
