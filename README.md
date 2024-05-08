@@ -1,8 +1,9 @@
-# FRoSt seatrac_driver #
+# FRoSt seatrac_driver
 
 This is a driver for the Blueprint Subsea Seatrac USBL receiver.
 
-It is a fork of the seatrac_driver written by Pierre Narvor (https://gitlab.ensta-bretagne.fr/narvorpi/seatrac_driver). This fork was made to add the DataSend, DataReceive, and DataError message types
+It is a fork of the seatrac_driver written by Pierre Narvor 
+https://gitlab.ensta-bretagne.fr/narvorpi/seatrac_driver
 
 ## Installation
 
@@ -32,11 +33,15 @@ If not, be sure to add it (for example with the following line :)
 echo "export CMAKE_PREFIX_PATH=<your_install_location_full_path>:\$CMAKE_PREFIX_PATH" >> .bashrc
 ```
 
+Alternatively, if you use `/lib/seatrac_driver` or `/usr/lib/seatrac_driver` as 
+<your_install_location>, cmake can find the driver without setting CMAKE_PREFIX_PATH.
+
 ### Dependancy Issues
-The driver may not run as intended if these dependancies have not been previously installed:
-* rtac_asio: if you get errors where the driver cannot find the librtac_asio.so 
-  file, you may need to install rtac_asio separately. To install, follow the instructions at 
-  https://github.com/pnarvor/rtac_asio. After installing, reinstall the seatrac driver.
+The driver has two principle dependancies:
+* rtac_asio: while the driver is setup to find and download the library rtac_asio automatically
+  sometimes there are errors. If cmake cannot find librtac_asio.so, you may need to install 
+  rtac_asio separately. To install, follow the instructions at https://github.com/pnarvor/rtac_asio. 
+  After installing, reinstall the seatrac driver.
 * Boost: if you do not have boost on your system, you can install it with 
   ```sudo apt-get install libboost-all-dev```
 
@@ -90,12 +95,52 @@ class MySeatracDriver : public seatrac::SeatracDriver
 };
 ```
 
-### Blueprint Subsea Seatrac Developer Guide
+## Examples
 
-This driver follows the guidlines found in the Seatrac Developer Guide (linked below).
-The manual is a good reference for definitions of variables and types. In addition, it
-defines other modem actions not yet included in this driver, which may be helpfull if 
-you need different functionality for your project.
+This driver comes with 3 different examples detailing different ways you can use this
+driver. If this is your first time using this driver, these examples are the best place
+to start. 
+### To run each example: 
+1. connect 2 beacons to your computer and place them together in water. 
+2. navigate to the examples folder `seatrac_driver/examples/<example_name>`
+3. build the example:
+    ```
+    mkdir build && cd build
+    cmake ..
+    make
+    cd ..
+    ```
+    If you have installed the seatrac_driver and it is in /lib, /usr/lib, or 
+    CMAKE_PREFIX_PATH, the example should use your installation. But you do 
+    not need to install seatrac_driver beforehand to build an example. Each 
+    example is setup to find and download the driver from the github 
+    repository (using FetchContent) if it cannot find an existing 
+    seatrac_driver on your computer.
+4. run the example: `./build/<example_name> <serial_port>`
+    The executable name is the same as example folder name.
+    It takes one arguement - the serial port that the seatrac modem is 
+    connected too (for example `/dev/ttyUSB0`).
 
-(https://www.seascapesubsea.com/downloads/Blueprint-Subsea-SeaTrac-Developer-Guide.pdf)
+### List of examples:
+* ping_example: 
+    Demonstrates the PING protocol. Sends a ping request to a nearby beacon, then 
+    once it receives a response, prints out the data and sends another request to 
+    the same beacon. Terminates once the enter key is pressed.
+* data_send_example:
+    Run data_send_example in two terminals connected to each beacon.
+    Demonstrates the DAT protocol. You will be prompted to enter a string. It will 
+    then send the string (up to 31 chars) to the other beacon, which will print 
+    the data recieved in it's own terminal.
+* calibration_example:
+    Performs two example calibration sequences for the accelerometer and the 
+    magnetometer. In this example, the calibration settings are only saved to RAM
+    and will not override the settings already set on the beacon.
+    To learn more about how to calibrate the beacon, read page 19 in the seatrac user guide:
+    https://www.blueprintsubsea.com/downloads/seatrac/UM-140-P00918-03.pdf#page=19 
+    
 
+## Help
+
+### Seatrac Support Website
+https://www.blueprintsubsea.com/seatrac/support
+This is the link to the latest seatrac beacon user support
