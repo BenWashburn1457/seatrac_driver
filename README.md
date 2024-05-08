@@ -38,6 +38,7 @@ Alternatively, if you use `/lib/seatrac_driver` or `/usr/lib/seatrac_driver` as
 
 ### Dependancy Issues
 The driver has two principle dependancies:
+
 * rtac_asio: while the driver is setup to find and download the library rtac_asio automatically
   sometimes there are errors. If cmake cannot find librtac_asio.so, you may need to install 
   rtac_asio separately. To install, follow the instructions at https://github.com/pnarvor/rtac_asio. 
