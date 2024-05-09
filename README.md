@@ -5,6 +5,10 @@ This is a driver for the Blueprint Subsea Seatrac USBL receiver.
 It is a fork of the seatrac_driver written by Pierre Narvor 
 https://gitlab.ensta-bretagne.fr/narvorpi/seatrac_driver
 
+If this is your first time using this driver, I'd recommend starting with the
+example code found in `seatrac_driver/examples`. Instructions for using the
+examples is under the Examples heading in the README.
+
 ## Installation
 
 This is a standard cmake package. It is to be installed in a location pointed by
@@ -77,14 +81,17 @@ Your implementation should look like this :
 
 ```
 #include <seatrac_driver/SeatracDriver.h>
+#include <seatrac_driver/messages/Messages.h>
 
-class MySeatracDriver : public seatrac::SeatracDriver
+using namespace narval::seatrac;
+
+class MySeatracDriver : public SeatracDriver
 {
     public:
 
     MySeatracDriver(const IoServicePtr& ioService,
                     const std::string& serialDevice = "/dev/ttyUSB0") :
-        seatrac::SeatracDriver(ioService, serialDevice)
+        SeatracDriver(ioService, serialDevice)
     {}
 
     protected:
@@ -98,9 +105,9 @@ class MySeatracDriver : public seatrac::SeatracDriver
 
 ## Examples
 
-This driver comes with 3 different examples detailing different ways you can use this
+This driver comes with 3 different examples detailing different features of the
 driver. If this is your first time using this driver, these examples are the best place
-to start. 
+to start.
 ### To run each example: 
 1. Connect 2 beacons to your computer and place them together in water. 
 2. Navigate to the examples folder `seatrac_driver/examples/<example_name>`
@@ -114,7 +121,7 @@ to start.
     If you have installed the seatrac_driver and it is in /lib, /usr/lib, or 
     CMAKE_PREFIX_PATH, the example should use your installation. But you do 
     not need to install seatrac_driver beforehand to build an example. Each 
-    example is setup to find and download the driver from the github 
+    example is setup to find and download the driver from the git
     repository (using FetchContent) if it cannot find an existing 
     seatrac_driver on your computer.
 4. Run the example: `./build/<example_name> <serial_port>`
@@ -124,8 +131,8 @@ to start.
 
 ### List of examples:
 * ping_example: 
-    Demonstrates the PING protocol. Sends a ping request to a nearby beacon, then 
-    once it receives a response, prints out the data and sends another request to 
+    Demonstrates the PING protocol. Sends a ping request to a nearby beacon with id 15.
+    Once it receives a response, it prints out the data and sends another request to 
     the same beacon. Terminates once the enter key is pressed.
 * data_send_example:
     Run data_send_example in two terminals connected to each beacon.
@@ -139,10 +146,59 @@ to start.
     and will not override the settings already set on the beacon.
     To learn more about how to calibrate the beacon, read page 19 in the seatrac user guide:
     https://www.blueprintsubsea.com/downloads/seatrac/UM-140-P00918-03.pdf#page=19 
-    
 
-## Help
 
-### Seatrac Support Website
+## Interfacing with the seatrac beacon
+### Sending Commands to the beacon
+You can send a command to the beacon in three steps: define the command's struct,
+fill in the struct fields, and pass the struct to the `SeatracDriver::send` function.
+In ping_example, a command is sent to send a ping request to another beacon. That is
+accomplished with this method:
+```
+//lines 17-23 of seatrac_driver/examples/ping_example/src/ping_example.cpp with additional comments
+17  void ping_beacon(BID_E target, AMSGTYPE_E pingType = MSG_REQU) {
+18      messages::PingSend::Request req;
+19      req.target   = target;    //target = BEACON_ID_15
+20      req.pingType = pingType;  //pingType = MSG_REQU
+21
+22      this->send(sizeof(req), (const uint8_t*)&req); //'this' is of type SeatracDriver
+23  }
+```
+Explaination:
+
+* Line 18: Declares a struct of type `PingSend::Request`. 
+* Line 19: Fills in the `target` field. This field indicates which beacon to send the acoustic message to.
+    In this case it is `BEACON_ID_15`.
+* Line 20: Fills in the `pingType` field. `MSG_REQU` indicates that our beacon should request a response
+    from the other beacon. The `U` in `MSG_REQU` indicates that this response should include usbl information.
+* Line 22: Sends the message to the beacon over a serial connection. `SeatracDriver::send` takes as input 
+    a pointer to the raw bytes of the command being sent, so it is necessary recast the command struct.
+
+### Decoding messages from the beacon
+Decoding messages is very similar to sending one. All message decoding happens in the 
+`SeatracDriver::on_message` method. `on_message` has two arguements: 
+
+* `CID_E msgId`: This indicates the type of message that was received so you can know what struct to use to decode it.
+* `const std::vector<uint8_t>& msgData`: the raw bytes of the message recieved.
+
+To decode, make a switch statement on `msgId`, then add a case for your message. 
+```
+// ping_example CID_PING_RESP inside the MyDriver::on_message method
+28  switch(msgId) {
+... 
+33      case CID_PING_RESP: {
+34          messages::PingResp response;       //struct that contains response fields
+35          response = data;                    //operator overload fills in response struct with correct data
+36          std::cout << response << std::endl; //operator overload prints out response data
+...
+41      } break;
+```
+Explaination:
+
+* Line 28: 
+
+
+## Seatrac Support Website
 https://www.blueprintsubsea.com/seatrac/support
-This is the link to the latest seatrac beacon user support
+This is the link to the latest seatrac beacon user support material.
+It includes a link to the Seatrac User Guide (referenced in the calibration) and the Seatrac 
