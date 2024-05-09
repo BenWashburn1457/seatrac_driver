@@ -5,7 +5,7 @@ This is a driver for the Blueprint Subsea Seatrac USBL receiver.
 It is a fork of the seatrac_driver written by Pierre Narvor 
 https://gitlab.ensta-bretagne.fr/narvorpi/seatrac_driver
 
-If this is your first time using this driver, I'd recommend starting with the
+If this is your first time using this driver, Start with the
 example code found in `seatrac_driver/examples`. Instructions for using the
 examples is under the Examples heading in the README.
 
@@ -106,11 +106,10 @@ class MySeatracDriver : public SeatracDriver
 ## Examples
 
 This driver comes with 3 different examples detailing different features of the
-driver. If this is your first time using this driver, these examples are the best place
-to start.
+driver. For new users, these examples are the best place to start.
 ### To run each example: 
 1. Connect 2 beacons to your computer and place them together in water. 
-2. Navigate to the examples folder `seatrac_driver/examples/<example_name>`
+2. Navigate to the example's folder `seatrac_driver/examples/<example_name>`
 3. Build the example:
     ```
     mkdir build && cd build
@@ -144,18 +143,20 @@ to start.
     Performs two example calibration sequences for the accelerometer and the 
     magnetometer. In this example, the calibration settings are only saved to RAM
     and will not override the settings already set on the beacon.
-    To learn more about how to calibrate the beacon, read page 19 in the seatrac user guide:
-    https://www.blueprintsubsea.com/downloads/seatrac/UM-140-P00918-03.pdf#page=19 
+    To learn more about how to calibrate the beacon, read in the 
+    [seatrac user guide, page 19](https://www.blueprintsubsea.com/downloads/seatrac/UM-140-P00918-03.pdf#page=19) 
 
 
 ## Interfacing with the seatrac beacon
+
 ### Sending Commands to the beacon
 You can send a command to the beacon in three steps: define the command's struct,
 fill in the struct fields, and pass the struct to the `SeatracDriver::send` function.
 In ping_example, a command is sent to send a ping request to another beacon. That is
 accomplished with this method:
+
+[ping_beacon in ping_example.cpp](https://bitbucket.org/frostlab/seatrac_driver/src/main/examples/ping_example/src/ping_example.cpp#ping_example.cpp-17:23)
 ```
-//lines 17-23 of seatrac_driver/examples/ping_example/src/ping_example.cpp with additional comments
 17  void ping_beacon(BID_E target, AMSGTYPE_E pingType = MSG_REQU) {
 18      messages::PingSend::Request req;
 19      req.target   = target;    //target = BEACON_ID_15
@@ -164,6 +165,7 @@ accomplished with this method:
 22      this->send(sizeof(req), (const uint8_t*)&req); //'this' is of type SeatracDriver
 23  }
 ```
+
 Explaination:
 
 * Line 18: Declares a struct of type `PingSend::Request`. 
@@ -175,27 +177,40 @@ Explaination:
     a pointer to the raw bytes of the command being sent, so it is necessary recast the command struct.
 
 ### Decoding messages from the beacon
-Decoding messages is very similar to sending one. All message decoding happens in the 
-`SeatracDriver::on_message` method. `on_message` has two arguements: 
+Decoding a message is similar to sending one - using a struct with the response fields. All messages recieved 
+from the beacon result in a call to `SeatracDriver::on_message`. `on_message` has two arguements: 
 
 * `CID_E msgId`: This indicates the type of message that was received so you can know what struct to use to decode it.
+    [CID_E](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/SeatracEnums.h#SeatracEnums.h-186:324)
+    is a seatrac defined enum that defines all types of messages sent too and from the beacon.
 * `const std::vector<uint8_t>& msgData`: the raw bytes of the message recieved.
 
-To decode, make a switch statement on `msgId`, then add a case for your message. 
+ping_example also decodes and prints a ping response message recieved from the other beacon:
+
+[Ping response message handler in ping_example.cpp](https://bitbucket.org/frostlab/seatrac_driver/src/main/examples/ping_example/src/ping_example.cpp#ping_example.cpp-28,33:41)
 ```
-// ping_example CID_PING_RESP inside the MyDriver::on_message method
 28  switch(msgId) {
 ... 
 33      case CID_PING_RESP: {
 34          messages::PingResp response;       //struct that contains response fields
 35          response = data;                    //operator overload fills in response struct with correct data
 36          std::cout << response << std::endl; //operator overload prints out response data
-...
+37                
+38          //sends another ping to the other beacon, creating a feedback loop between ping sends and ping responses
+39          this->ping_beacon(response.acoFix.srcId, MSG_REQU);
+40
 41      } break;
 ```
+
 Explaination:
 
-* Line 28: 
+* Line 28: switch statement on msgId ensures you decode the right type of message and lets you define event
+    handlers for different types of beacon responses.
+* Line 33: CID_PING_RESP is the CID_E associated with Ping Response
+* Line 35: The assignment is an operator overload that fills in the struct with all the information in data
+* Line 36: Another opperator overload that prints out all of the response fields
+* Line 39: members of the response struct can be used in your c++ code. In this case we're using the beacon
+    ID of the beacon that sent the response to send another ping to that beacon.
 
 
 ## Seatrac Support Website
