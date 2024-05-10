@@ -149,6 +149,31 @@ driver. For new users, these examples are the best place to start.
 
 ## Interfacing with the seatrac beacon
 
+### Seatrac Structs and Enums
+The seatrac_driver interfaces with the beacon through a serial connection. You can write and decode messages for the beacon
+using structures and enums provided by the seatrac_driver. Seatrac structures define the content and order of the message.
+Enums define the meaning of individual bytes.
+
+The seatrac defined enums can be found in [SeatracEnums.h](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/SeatracEnums.h)
+
+The basic seatrac defined structs can be found in [SeatracTypes.h](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/SeatracTypes.h)
+
+#### List of Common Seatrac Message Protocols
+Ping protocol
+Dat protocol
+
+#### List of Common non-message seatrac structs
+ACOFIX_T
+
+#### List of Common seatrac Enums
+BID_E
+CID_E
+AMSGTYPE_E
+
+
+
+
+
 ### Sending Commands to the beacon
 You can send a command to the beacon in three steps: define the command's struct,
 fill in the struct fields, and pass the struct to the `SeatracDriver::send` function.
