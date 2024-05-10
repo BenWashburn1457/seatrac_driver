@@ -5,7 +5,7 @@ This is a driver for the Blueprint Subsea Seatrac USBL receiver.
 It is a fork of the seatrac_driver written by Pierre Narvor 
 https://gitlab.ensta-bretagne.fr/narvorpi/seatrac_driver
 
-If this is your first time using this driver, Start with the
+If this is your first time using this driver, start with the
 example code found in `seatrac_driver/examples`. Instructions for using the
 examples is under the Examples heading in the README.
 
@@ -148,30 +148,36 @@ driver. For new users, these examples are the best place to start.
 
 
 ## Interfacing with the seatrac beacon
+The seatrac_driver interfaces with the beacon through a serial connection. Commands are sent both ways
+as a series of bytes.
 
-### Seatrac Structs and Enums
-The seatrac_driver interfaces with the beacon through a serial connection. You can write and decode messages for the beacon
-using structures and enums provided by the seatrac_driver. Seatrac structures define the content and order of the message.
-Enums define the meaning of individual bytes.
+The seatrac serial interface is defined in the [Seatrac Developer User Guide](https://www.blueprintsubsea.com/downloads/seatrac/UM-140-D00221-07.pdf).
+The implimentation of seatrac_driver closely matches the Developer Guide.
 
-The seatrac defined enums can be found in [SeatracEnums.h](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/SeatracEnums.h)
+The first byte of each serial message is the Command Identification Code,
+defined in the [CID_E](https://www.blueprintsubsea.com/downloads/seatrac/UM-140-D00221-07.pdf#page=40) enumeration. 
+The meaning of bytes following CID_E are determined by a unique structure for that CID code. 
+For example, if [CID_PING_SEND](https://www.blueprintsubsea.com/downloads/seatrac/UM-140-D00221-07.pdf#page=111)
+is the first byte, then according to the Developer Guide, the second byte is the DEST_ID and the third is 
+the MSG_TYPE.
 
-The basic seatrac defined structs can be found in [SeatracTypes.h](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/SeatracTypes.h)
+In seatrac_driver, each message is defined as a struct. The first field of every message struct is `static const CID_E Identifier`.
+This is set to the associated CID code. The remaining fields can be filled in to form the complete message.
 
-#### List of Common Seatrac Message Protocols
-Ping protocol
-Dat protocol
-
-#### List of Common non-message seatrac structs
-ACOFIX_T
-
-#### List of Common seatrac Enums
-BID_E
-CID_E
-AMSGTYPE_E
-
+In addition to message structs, there are also field structs. Field structs are members of message structs.
+They do not have a CID_E Identifier field.
+One example of a field struct is [ACOFIX_T](https://www.blueprintsubsea.com/downloads/seatrac/UM-140-D00221-07.pdf#page=49),
+which is included in lots of message types and has positioning and usbl information.
 
 
+#### Locations of Seatrac Structs and Enums in seatrac_driver
+
+* Seatrac Enums are defined in [SeatracEnums.h](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/SeatracEnums.h)
+* Field Structs are defined in [SeatracTypes.h](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/SeatracTypes.h)
+* Message structs are found in the folder [include/seatrac_driver/messages](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/messages/).
+    In general, since the `CID_<MSG_TYPE>` symbols are already used in the CID_E enum in SeatracEnums.h, 
+    the message struct names are written in CammelCase without the CID prefix. For example, the struct for
+    CID_PING_SEND is called [PingSend](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/messages/PingSend.h#PingSend.h-9).
 
 
 ### Sending Commands to the beacon
@@ -182,12 +188,13 @@ accomplished with this method:
 
 [ping_beacon in ping_example.cpp](https://bitbucket.org/frostlab/seatrac_driver/src/main/examples/ping_example/src/ping_example.cpp#ping_example.cpp-17:23)
 ```
+//extra comments added for clarifcation
 17  void ping_beacon(BID_E target, AMSGTYPE_E pingType = MSG_REQU) {
 18      messages::PingSend::Request req;
 19      req.target   = target;    //target = BEACON_ID_15
 20      req.pingType = pingType;  //pingType = MSG_REQU
 21
-22      this->send(sizeof(req), (const uint8_t*)&req); //'this' is of type SeatracDriver
+22      this->send(sizeof(req), (const uint8_t*)&req); //'this' = SeatracDriver
 23  }
 ```
 
@@ -201,13 +208,12 @@ Explaination:
 * Line 22: Sends the message to the beacon over a serial connection. `SeatracDriver::send` takes as input 
     a pointer to the raw bytes of the command being sent, so it is necessary recast the command struct.
 
+
 ### Decoding messages from the beacon
-Decoding a message is similar to sending one - using a struct with the response fields. All messages recieved 
+Decoding a message is similar to sending one. All messages recieved 
 from the beacon result in a call to `SeatracDriver::on_message`. `on_message` has two arguements: 
 
 * `CID_E msgId`: This indicates the type of message that was received so you can know what struct to use to decode it.
-    [CID_E](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/SeatracEnums.h#SeatracEnums.h-186:324)
-    is a seatrac defined enum that defines all types of messages sent too and from the beacon.
 * `const std::vector<uint8_t>& msgData`: the raw bytes of the message recieved.
 
 ping_example also decodes and prints a ping response message recieved from the other beacon:
@@ -215,9 +221,9 @@ ping_example also decodes and prints a ping response message recieved from the o
 [Ping response message handler in ping_example.cpp](https://bitbucket.org/frostlab/seatrac_driver/src/main/examples/ping_example/src/ping_example.cpp#ping_example.cpp-28,33:41)
 ```
 28  switch(msgId) {
-... 
+ ... 
 33      case CID_PING_RESP: {
-34          messages::PingResp response;       //struct that contains response fields
+34          messages::PingResp response;        //struct that contains response fields
 35          response = data;                    //operator overload fills in response struct with correct data
 36          std::cout << response << std::endl; //operator overload prints out response data
 37                
