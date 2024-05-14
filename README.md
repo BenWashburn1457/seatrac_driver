@@ -120,7 +120,7 @@ driver. For new users, these examples are the best place to start.
     If you have installed the seatrac_driver and it is in /lib, /usr/lib, or 
     CMAKE_PREFIX_PATH, the example should use your installation. But you do 
     not need to install seatrac_driver beforehand to build an example. Each 
-    example is setup to find and download the driver from the git
+    example is setup to find and download the driver from this git
     repository (using FetchContent) if it cannot find an existing 
     seatrac_driver on your computer.
 4. Run the example: `./build/<example_name> <serial_port>`
@@ -148,41 +148,51 @@ driver. For new users, these examples are the best place to start.
 
 
 ## Interfacing with the seatrac beacon
-The seatrac_driver interfaces with the beacon through a serial connection. Commands are sent both ways
-as a series of bytes.
+The seatrac_driver interfaces with the beacon through a serial connection. Messages are sent both ways
+as a series of bytes. Messages sent to the beacon are commands. Messages recieved from the beacon
+are responses.
 
 The seatrac serial interface is defined in the [Seatrac Developer User Guide](https://www.blueprintsubsea.com/downloads/seatrac/UM-140-D00221-07.pdf).
 The implimentation of seatrac_driver closely matches the Developer Guide.
 
-The first byte of each serial message is the Command Identification Code,
+The first byte of each serial message (after the synchronisation character) is the Command Identification Code,
 defined in the [CID_E](https://www.blueprintsubsea.com/downloads/seatrac/UM-140-D00221-07.pdf#page=40) enumeration. 
-The meaning of bytes following CID_E are determined by a unique structure for that CID code. 
-For example, if [CID_PING_SEND](https://www.blueprintsubsea.com/downloads/seatrac/UM-140-D00221-07.pdf#page=111)
-is the first byte, then according to the Developer Guide, the second byte is the DEST_ID and the third is 
-the MSG_TYPE.
+The following byte fields are determined by a unique structure for the CID_E. Each CID_E has up to two structures 
+defined for it, a command and a response.
 
-In seatrac_driver, each message is defined as a struct. The first field of every message struct is `static const CID_E Identifier`.
-This is set to the associated CID code. The remaining fields can be filled in to form the complete message.
+For example, [CID_PING_SEND](https://www.blueprintsubsea.com/downloads/seatrac/UM-140-D00221-07.pdf#page=111)
+has both a command and response format. If CID_PING_SEND is used as the first byte of a command sent to the
+beacon, its second field would be DEST_ID and the third would be MSG_TYPE. If CID_PING_SEND is the first
+byte of a response from the beacon, its second byte would be STATUS and the third is BEACON_ID.
+
+In seatrac_driver, each message is defined as a struct. The first field of every message struct is 
+`static const CID_E Identifier`. This is set to the associated CID code. The remaining fields can be filled in 
+to form the complete message.
 
 In addition to message structs, there are also field structs. Field structs are members of message structs.
 They do not have a CID_E Identifier field.
-One example of a field struct is [ACOFIX_T](https://www.blueprintsubsea.com/downloads/seatrac/UM-140-D00221-07.pdf#page=49),
-which is included in lots of message types and has positioning and usbl information.
-
 
 #### Locations of Seatrac Structs and Enums in seatrac_driver
 
 * Seatrac Enums are defined in [SeatracEnums.h](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/SeatracEnums.h)
 * Field Structs are defined in [SeatracTypes.h](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/SeatracTypes.h)
-* Message structs are found in the folder [include/seatrac_driver/messages](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/messages/).
+* Message Structs are found in the folder [include/seatrac_driver/messages](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/messages/).
     In general, since the `CID_<MSG_TYPE>` symbols are already used in the CID_E enum in SeatracEnums.h, 
     the message struct names are written in CammelCase without the CID prefix. For example, the struct for
-    CID_PING_SEND is called [PingSend](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/messages/PingSend.h#PingSend.h-9).
+    CID_PING_RESP is called [`PingResp`](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/messages/PingResp.h#PingResp.h-9:22).
+    For CIDs that have command and response formats defined, the response struct is given the `<MsgType>`
+    name and the command struct is given the `<MsgType>::Request` name. For CID_PING_SEND, 
+    [`PingSend`](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/messages/PingSend.h#PingSend.h-9:23)
+    is the struct for the response returned from the beacon, and 
+    [`PingSend::Request`](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/messages/PingSend.h#PingSend.h-14:18)
+    is the struct for the command sent to the beacon to send a ping.
 
 
-### Sending Commands to the beacon
+## Sending Commands to the beacon
+
 You can send a command to the beacon in three steps: define the command's struct,
-fill in the struct fields, and pass the struct to the `SeatracDriver::send` function.
+fill in the struct fields, and pass it to the send function of SeatracDriver.
+
 In ping_example, a command is sent to send a ping request to another beacon. That is
 accomplished with this method:
 
@@ -194,22 +204,31 @@ accomplished with this method:
 19      req.target   = target;    //target = BEACON_ID_15
 20      req.pingType = pingType;  //pingType = MSG_REQU
 21
-22      this->send(sizeof(req), (const uint8_t*)&req); //'this' = SeatracDriver
+22      this->send(sizeof(req), (const uint8_t*)&req); //'this' is of type SeatracDriver
 23  }
 ```
 
 Explaination:
 
-* Line 18: Declares a struct of type `PingSend::Request`. 
+* Line 18: Declares a struct of type `PingSend::Request`, the command message for `CID_PING_SEND`. 
 * Line 19: Fills in the `target` field. This field indicates which beacon to send the acoustic message to.
     In this case it is `BEACON_ID_15`.
 * Line 20: Fills in the `pingType` field. `MSG_REQU` indicates that our beacon should request a response
     from the other beacon. The `U` in `MSG_REQU` indicates that this response should include usbl information.
-* Line 22: Sends the message to the beacon over a serial connection. `SeatracDriver::send` takes as input 
+* Line 22: Sends the message to the beacon over the serial connection. `SeatracDriver::send` takes as input 
     a pointer to the raw bytes of the command being sent, so it is necessary recast the command struct.
 
+seatrac_driver has two functions you can use to send data: 
+asynchronous `SeatracDriver::send` and synchronous `SeatracDriver::send_request`.
 
-### Decoding messages from the beacon
+* `void SeatracDriver::send(size_t size, const uint8_t* data)` --- 
+    Basic function that sends a string of bytes to the modem. It does so asynchonously. 
+    The function returns before the the command is sent.
+    
+* `bool SeatracDriver::send_request(unsigned int cmdSize, const uint8_t* cmdData, T* respData, int64_t timeout)` --- 
+    Sends a command to the modem,
+
+## Decoding messages from the beacon
 Decoding a message is similar to sending one. All messages recieved 
 from the beacon result in a call to `SeatracDriver::on_message`. `on_message` has two arguements: 
 
@@ -244,7 +263,8 @@ Explaination:
     ID of the beacon that sent the response to send another ping to that beacon.
 
 
-## Seatrac Support Website
+## Seatrac Support Webpage
 https://www.blueprintsubsea.com/seatrac/support
+
 This is the link to the latest seatrac beacon user support material.
-It includes a link to the Seatrac User Guide (referenced in the calibration) and the Seatrac 
+It has links to the Seatrac Beacon User Guide and the Seatrac Developer User Guide.
