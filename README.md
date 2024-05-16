@@ -1,13 +1,13 @@
 # FRoSt seatrac_driver
 
-This is a driver for the Blueprint Subsea Seatrac USBL receiver.
+This is a c++ driver for the Blueprint Subsea Seatrac USBL receiver.
 
-It is a fork of the seatrac_driver written by Pierre Narvor 
-https://gitlab.ensta-bretagne.fr/narvorpi/seatrac_driver
+It is a fork of the seatrac_driver written by Pierre Narvor: 
+https://gitlab.ensta-bretagne.fr/narvorpi/seatrac_driver.
 
 If this is your first time using this driver, start with the
 example code found in `seatrac_driver/examples`. Instructions for using the
-examples is under the Examples heading in the README.
+examples are under the Examples heading in the README.
 
 ## Installation
 
@@ -38,7 +38,7 @@ echo "export CMAKE_PREFIX_PATH=<your_install_location_full_path>:\$CMAKE_PREFIX_
 ```
 
 Alternatively, if you use `/lib/seatrac_driver` or `/usr/lib/seatrac_driver` as 
-<your_install_location>, cmake can find the driver without setting CMAKE_PREFIX_PATH.
+<your_install_location>, cmake can find the driver without CMAKE_PREFIX_PATH.
 
 ### Dependancy Issues
 The driver has two principle dependancies:
@@ -74,7 +74,7 @@ shenanigans. Please use modern CMake.)
 ### In your code
 
 You can receive data from the driver by subclassing the "SeatracDriver" class
-and reimplementing the "on_receive" virtual method.
+and reimplementing the "on_message" virtual method.
 
 
 Your implementation should look like this :
@@ -137,15 +137,15 @@ driver. For new users, these examples are the best place to start.
     Run data_send_example in two terminals connected to each beacon.
     Demonstrates the DAT protocol. You will be prompted to enter a string. It will 
     then send the string (up to 31 chars) to the other beacon, which will print 
-    the data recieved in it's own terminal. Press enter without typing a message
+    the data recieved in its own terminal. Press enter without typing a message
     to close the program.
 * calibration_example:
     Performs two example calibration sequences for the accelerometer and the 
     magnetometer. In this example, the calibration settings are only saved to RAM
     and will not override the settings already set on the beacon.
     To learn more about how to calibrate the beacon, read in the 
-    [seatrac user guide, page 19](https://www.blueprintsubsea.com/downloads/seatrac/UM-140-P00918-03.pdf#page=19) 
-
+    [Seatrac Beacon User Guide, page 19](https://www.blueprintsubsea.com/downloads/seatrac/UM-140-P00918-03.pdf#page=19).
+    
 
 ## Interfacing with the seatrac beacon
 The seatrac_driver interfaces with the beacon through a serial connection. Messages are sent both ways
@@ -177,21 +177,22 @@ They do not have a CID_E Identifier field.
 * Seatrac Enums are defined in [SeatracEnums.h](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/SeatracEnums.h)
 * Field Structs are defined in [SeatracTypes.h](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/SeatracTypes.h)
 * Message Structs are found in the folder [include/seatrac_driver/messages](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/messages/).
-    In general, since the `CID_<MSG_TYPE>` symbols are already used in the CID_E enum in SeatracEnums.h, 
-    the message struct names are written in CammelCase without the CID prefix. For example, the struct for
-    CID_PING_RESP is called [`PingResp`](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/messages/PingResp.h#PingResp.h-9:22).
-    For CIDs that have command and response formats defined, the response struct is given the `<MsgType>`
-    name and the command struct is given the `<MsgType>::Request` name. For CID_PING_SEND, 
-    [`PingSend`](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/messages/PingSend.h#PingSend.h-9:23)
-    is the struct for the response returned from the beacon, and 
-    [`PingSend::Request`](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/messages/PingSend.h#PingSend.h-14:18)
-    is the struct for the command sent to the beacon to send a ping.
+
+In general, since the `CID_<MSG_TYPE>` symbols are already used in the CID_E enum in SeatracEnums.h, 
+the message struct names are written in CamelCase without the CID prefix. For example, the struct for
+`CID_PING_RESP` is called [`PingResp`](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/messages/PingResp.h#PingResp.h-9:22).
+For CIDs that have command and response formats defined, the response struct is given the `<MsgType>`
+name and the command struct is given the `<MsgType>::Request` name. For `CID_PING_SEND`, 
+[`PingSend`](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/messages/PingSend.h#PingSend.h-9:23)
+is the struct for the response returned from the beacon, and 
+[`PingSend::Request`](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/messages/PingSend.h#PingSend.h-14:18)
+is the struct for the command sent to the beacon to send a ping.
 
 
 ## Sending Commands to the beacon
 
 You can send a command to the beacon in three steps: define the command's struct,
-fill in the struct fields, and pass it to the send function of SeatracDriver.
+fill in the struct fields, and pass it to one of the send functions of SeatracDriver.
 
 In ping_example, a command is sent to send a ping request to another beacon. That is
 accomplished with this method:
@@ -213,20 +214,28 @@ Explaination:
 * Line 18: Declares a struct of type `PingSend::Request`, the command message for `CID_PING_SEND`. 
 * Line 19: Fills in the `target` field. This field indicates which beacon to send the acoustic message to.
     In this case it is `BEACON_ID_15`.
-* Line 20: Fills in the `pingType` field. `MSG_REQU` indicates that our beacon should request a response
-    from the other beacon. The `U` in `MSG_REQU` indicates that this response should include usbl information.
+* Line 20: Fills in the `pingType` field. [`MSG_REQU`](https://www.seascapesubsea.com/downloads/Blueprint-Subsea-SeaTrac-Developer-Guide.pdf#page=31)
+    indicates that our beacon should request a response from the other beacon. The `U` in `MSG_REQU` 
+    indicates that this response should include usbl information.
 * Line 22: Sends the message to the beacon over the serial connection. `SeatracDriver::send` takes as input 
     a pointer to the raw bytes of the command being sent, so it is necessary recast the command struct.
 
 seatrac_driver has two functions you can use to send data: 
-asynchronous `SeatracDriver::send` and synchronous `SeatracDriver::send_request`.
 
 * `void SeatracDriver::send(size_t size, const uint8_t* data)` --- 
-    Basic function that sends a string of bytes to the modem. It does so asynchonously. 
-    The function returns before the the command is sent.
+    Send a command asynchronously to the beacon without waiting for a response. 
+    Takes two arguements:
+    * `size` : The number of bytes in the command
+    * `data` : A pointer to the command being sent
     
 * `bool SeatracDriver::send_request(unsigned int cmdSize, const uint8_t* cmdData, T* respData, int64_t timeout)` --- 
-    Sends a command to the modem,
+    Sends a command synchronously to the modem and waits for a response from the modem. It returns true if
+    the response was successfully recieved and false otherwise.
+    Takes four arguements:
+    * `cmdSize`  : The number of bytes in the command
+    * `cmdData`  : A pointer to the command being sent
+    * `respData` : A struct that will be filled in with the response data from the beacon
+    * `timeout`  : How long to wait for a response from the beacon
 
 ## Decoding messages from the beacon
 Decoding a message is similar to sending one. All messages recieved 
@@ -262,6 +271,14 @@ Explaination:
 * Line 39: members of the response struct can be used in your c++ code. In this case we're using the beacon
     ID of the beacon that sent the response to send another ping to that beacon.
 
+Besides `SeatracDriver::on_message`, there are two other methods you can use to read a message from the beacon.
+`SeatracDriver::send_request` may be used of the message is a response to a command you sent. You can also
+use `SeatracDriver::wait_for_message(CID_E msgId, T* data, int64_t timeout)`. `wait_for_message` returns true
+if the message was sucessfully recieved and false otherwise. It has three arguements:
+
+* `msgId`   : The CID_E code of the message to wait for
+* `data`    : A struct that will be filled with the message data from the beacon
+* `timeout` : How long to wait for that message to be recieved
 
 ## Seatrac Support Webpage
 https://www.blueprintsubsea.com/seatrac/support
