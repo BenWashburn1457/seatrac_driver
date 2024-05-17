@@ -22,14 +22,17 @@ using namespace std::chrono; // nanoseconds, system_clock, seconds
 
 namespace narval { namespace seatrac { namespace calibration {
 
-    struct CalibrationActionMsg : public messages::Message<CalibrationActionMsg>{
-        static const CID_E Identifier = CID_CAL_ACTION;
-        CAL_ACTION_E action;
-    }__attribute__((packed));
 
-    struct CalibrationResponse : public messages::Message<CalibrationResponse>{
+    struct CalAction : public messages::Message<CalAction>{
+
         static const CID_E Identifier = CID_CAL_ACTION;
+        struct Request : public messages::Message<Request>{
+            static const CID_E Identifier = CID_CAL_ACTION;
+            CAL_ACTION_E action;
+        }__attribute__((packed));
+
         CST_E status;
+
     }__attribute__((packed));
 
     inline void turnOnAccCalFeedback(SeatracDriver& seatrac, 
@@ -98,7 +101,7 @@ namespace narval { namespace seatrac { namespace calibration {
         in.get();
 
         //reset the calibration values
-        CalibrationActionMsg resetCal;
+        CalAction::Request resetCal;
         resetCal.action = CAL_ACC_RESET;
         seatrac.send(sizeof(resetCal), (const uint8_t*)&resetCal);
         sleep_for(milliseconds(5));
@@ -111,7 +114,7 @@ namespace narval { namespace seatrac { namespace calibration {
         sleep_for(milliseconds(5));
 
         //calculate the new calibration parameters & save to seatrac RAM
-        CalibrationActionMsg calculateCal;
+        CalAction::Request calculateCal;
         calculateCal.action = CAL_ACC_CALC;
         seatrac.send(sizeof(calculateCal), (const uint8_t*)&calculateCal);
         out << "Calibration values calculated and saved to RAM." << std::endl;
@@ -140,7 +143,7 @@ namespace narval { namespace seatrac { namespace calibration {
         in.get();
 
        //reset the calibration values
-        CalibrationActionMsg resetCal;
+        CalAction::Request resetCal;
         resetCal.action = CAL_MAG_RESET;
         seatrac.send(sizeof(resetCal), (const uint8_t*)&resetCal);
         sleep_for(milliseconds(5));
@@ -153,7 +156,7 @@ namespace narval { namespace seatrac { namespace calibration {
         sleep_for(milliseconds(5));
 
         //calculate the new calibration parameters & save to seatrac RAM
-        CalibrationActionMsg calculateCal;
+        CalAction::Request calculateCal;
         calculateCal.action = CAL_MAG_CALC;
         seatrac.send(sizeof(calculateCal), (const uint8_t*)&calculateCal);
         out << "Calibration values calculated and saved to RAM." << std::endl;
