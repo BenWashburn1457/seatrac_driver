@@ -56,6 +56,7 @@ inline std::ostream& operator<<(std::ostream& os,
     os << "DataSend Response: " 
        << "\n- status: " << msg.status
        << "\n- beaconId: " << msg.beaconId;
+    return os;
 }
 
 

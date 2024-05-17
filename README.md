@@ -123,7 +123,7 @@ driver. For new users, these examples are the best place to start.
     example is setup to find and download the driver from this git
     repository (using FetchContent) if it cannot find an existing 
     seatrac_driver on your computer.
-4. Run the example: `./build/<example_name> <serial_port>`
+4. Run the example: `sudo ./build/<example_name> <serial_port>`
     The executable name is the same as example folder name.
     It takes one arguement - the serial port that the seatrac modem is 
     connected too (for example `/dev/ttyUSB0`).
