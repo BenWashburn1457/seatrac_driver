@@ -31,7 +31,7 @@ class MyDriver : public SeatracDriver
                 break;
 
             case CID_PING_RESP: {
-                    messages::PingResp response;       //struct that contains response fields
+                    messages::PingResp response;        //struct that contains response fields
                     response = data;                    //operator overload fills in response struct with correct data
                     std::cout << response << std::endl; //operator overload prints out response data
 
