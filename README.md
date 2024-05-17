@@ -181,8 +181,8 @@ They do not have a CID_E Identifier field.
 In general, since the `CID_<MSG_TYPE>` symbols are already used in the CID_E enum in SeatracEnums.h, 
 the message struct names are written in CamelCase without the CID prefix. For example, the struct for
 `CID_PING_RESP` is called [`PingResp`](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/messages/PingResp.h#PingResp.h-9:22).
-For CIDs that have command and response formats defined, the response struct is given the `<MsgType>`
-name and the command struct is given the `<MsgType>::Request` name. For `CID_PING_SEND`, 
+
+For **CIDs that have command and response** formats defined, the response struct is called `<MsgType>` and the command struct is called `<MsgType>::Request`. For `CID_PING_SEND`, 
 [`PingSend`](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/messages/PingSend.h#PingSend.h-9:23)
 is the struct for the response returned from the beacon, and 
 [`PingSend::Request`](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/messages/PingSend.h#PingSend.h-14:18)

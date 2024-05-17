@@ -11,10 +11,16 @@ struct DataSend : public Message<DataSend> {
     using Message<DataSend>::operator=;
 
     static const CID_E Identifier = CID_DAT_SEND;
-    BID_E destId;
-    AMSGTYPE_E msgType;
-    uint8_t packetLen;
-    uint8_t packetData[31];
+    struct Request : public Message<Request> {
+        static const CID_E Identifier = CID_DAT_SEND;
+        BID_E destId;
+        AMSGTYPE_E msgType;
+        uint8_t packetLen;
+        uint8_t packetData[31];
+    }__attribute__((packed));
+
+    CST_E status;
+    BID_E beaconId;
 
 }__attribute__((packed));
 
@@ -23,9 +29,9 @@ struct DataSend : public Message<DataSend> {
 }; //namespace narval
 
 inline std::ostream& operator<<(std::ostream& os,
-                                const narval::seatrac::messages::DataSend& msg)
+                                const narval::seatrac::messages::DataSend::Request& msg)
 {
-    os << "DataSend: " 
+    os << "DataSend Request: " 
        << "\n- target:\t" << msg.destId
        << "\n- msg type:\t" << msg.msgType
        << "\n- packet length:\t" << (int)msg.packetLen
@@ -43,5 +49,14 @@ inline std::ostream& operator<<(std::ostream& os,
     }
     return os;
 }
+
+inline std::ostream& operator<<(std::ostream& os,
+                                const narval::seatrac::messages::DataSend& msg)
+{
+    os << "DataSend Response: " 
+       << "\n- status: " << msg.status
+       << "\n- beaconId: " << msg.beaconId;
+}
+
 
 #endif //_DEF_SEATRAC_DRIVER_MESSAGES_DATA_SEND_H_

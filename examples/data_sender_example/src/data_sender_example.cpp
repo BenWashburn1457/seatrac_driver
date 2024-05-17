@@ -24,17 +24,17 @@ class MyDriver : public SeatracDriver
                    const uint8_t data_length, 
                    const uint8_t* data) {
 
-        messages::DataSend message;   //create a message packet to send
+        messages::DataSend::Request message;                      //create a message to send
         
-        message.destId    = destId;     //beacon it's sending the data to
-        message.msgType   = msgType;      //type of message being sent
-        message.packetLen = std::min(data_length, (uint8_t)31); //the length of data packet (must be 31 bytes or smaller)
+        message.destId    = destId;                               //beacon it's sending the data to
+        message.msgType   = msgType;                              //type of message being sent
+        message.packetLen = std::min(data_length, (uint8_t)31);   //the length of data packet (must be no more than 31 bytes)
 
         std::memcpy(message.packetData, data, message.packetLen); //copy the bytes (chars) from data into our message structure
 
-        std::cout << message << std::endl; //opperator overload - prints message content 
+        std::cout << message << std::endl;                        //opperator overload - prints message content 
 
-        this->send(sizeof(message), (const uint8_t*)&message); //prepares data to send over serial line
+        this->send(sizeof(message), (const uint8_t*)&message);    //prepares data to send over serial line
 
     }
 
