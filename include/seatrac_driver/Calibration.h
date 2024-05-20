@@ -11,6 +11,7 @@
 #include <seatrac_driver/messages/Status.h>
 #include <seatrac_driver/messages/StatusConfigSet.h>
 #include <seatrac_driver/messages/MessageBase.h>
+#include <seatrac_driver/commands.h>
 
 using namespace narval::seatrac;
 using namespace std::this_thread; // sleep_for, sleep_until
@@ -35,34 +36,80 @@ namespace narval { namespace seatrac { namespace calibration {
 
     }__attribute__((packed));
 
-    inline void turnOnAccCalFeedback(SeatracDriver& seatrac, 
-                        STATUS_BITS_E prevStatusBits=static_cast<STATUS_BITS_E>(0x0), 
-                        STATUSMODE_E statusMode=STATUS_MODE_10HZ) {
-        messages::StatusConfigSet::Request statusSet;
-        
-        statusSet.statusOutput = ACC_CAL | AHRS_RAW_DATA | prevStatusBits; 
-        statusSet.statusMode   = statusMode;
+    // inline bool turnOnAccCalFeedback(SeatracDriver& seatrac, 
+    //                     STATUS_BITS_E prevStatusBits=static_cast<STATUS_BITS_E>(0x0), 
+    //                     STATUSMODE_E statusMode=STATUS_MODE_10HZ) {
 
-        seatrac.send(sizeof(statusSet), (const uint8_t*)&statusSet);
-    }
-    inline void turnOnMagCalFeedback(SeatracDriver& seatrac, 
-                        STATUS_BITS_E prevStatusBits=static_cast<STATUS_BITS_E>(0x0), 
-                        STATUSMODE_E statusMode=STATUS_MODE_10HZ) {
-        messages::StatusConfigSet::Request statusSet;
-        
-        statusSet.statusOutput = MAG_CAL | AHRS_RAW_DATA | prevStatusBits; 
-        statusSet.statusMode   = statusMode;
+    //     command::status_config_set()
 
-        seatrac.send(sizeof(statusSet), (const uint8_t*)&statusSet);
-    }
-    inline void turnOffCalFeedback(SeatracDriver& seatrac, STATUS_BITS_E prevStatusBits=static_cast<STATUS_BITS_E>(0x0), STATUSMODE_E statusMode=STATUS_MODE_10HZ) {
-        messages::StatusConfigSet::Request statusSet;
+    //     messages::StatusConfigSet::Request statusSet;
         
-        statusSet.statusOutput = static_cast<STATUS_BITS_E>(prevStatusBits & ~ACC_CAL & ~MAG_CAL & ~AHRS_RAW_DATA); 
-        statusSet.statusMode   = statusMode;
+    //     statusSet.statusOutput = ACC_CAL | AHRS_RAW_DATA | prevStatusBits; 
+    //     statusSet.statusMode   = statusMode;
 
-        seatrac.send(sizeof(statusSet), (const uint8_t*)&statusSet);
-    }
+    //     messages::StatusConfigSet statusSetResponse;
+    //     if (seatrac.send_request(sizeof(statusSet), (const uint8_t*)&statusSet, &statusSetResponse)) {
+    //             if (statusSetResponse.statusCode == CST_OK) return true;
+    //             else {
+    //                 if (err_out_ptr != nullptr) 
+    //                 *err_out_ptr << "Error sending status set request: " 
+    //                              << statusSetResponse 
+    //                              << std::endl;
+    //                 return false;
+    //             }
+    //     } else {
+    //          if (err_out_ptr != nullptr) *err_out_ptr << "Error sending status set request: Timeout reached" << std::endl;
+    //          return false;
+    //     }
+    // }
+    // inline bool turnOnMagCalFeedback(SeatracDriver& seatrac, 
+    //                     STATUS_BITS_E prevStatusBits=static_cast<STATUS_BITS_E>(0x0), 
+    //                     STATUSMODE_E statusMode=STATUS_MODE_10HZ,
+    //                     std::ostream* err_out_ptr=nullptr) {
+    //     messages::StatusConfigSet::Request statusSet;
+        
+    //     statusSet.statusOutput = MAG_CAL | AHRS_RAW_DATA | prevStatusBits; 
+    //     statusSet.statusMode   = statusMode;
+
+    //     messages::StatusConfigSet statusSetResponse;
+    //     if (seatrac.send_request(sizeof(statusSet), (const uint8_t*)&statusSet, &statusSetResponse)) {
+    //             if (statusSetResponse.statusCode == CST_OK) return true;
+    //             else {
+    //                 if (err_out_ptr != nullptr) 
+    //                 *err_out_ptr << "Error sending status set request: " 
+    //                              << statusSetResponse 
+    //                              << std::endl;
+    //                 return false;
+    //             }
+    //     } else {
+    //          if (err_out_ptr != nullptr) *err_out_ptr << "Error sending status set request: Timeout reached" << std::endl;
+    //          return false;
+    //     }
+    // }
+    // inline bool turnOffCalFeedback(SeatracDriver& seatrac, 
+    //                     STATUS_BITS_E prevStatusBits=static_cast<STATUS_BITS_E>(0x0),
+    //                     STATUSMODE_E statusMode=STATUS_MODE_10HZ,
+    //                     std::ostream* err_out_ptr=nullptr) {
+    //     messages::StatusConfigSet::Request statusSet;
+        
+    //     statusSet.statusOutput = static_cast<STATUS_BITS_E>(prevStatusBits & ~ACC_CAL & ~MAG_CAL & ~AHRS_RAW_DATA); 
+    //     statusSet.statusMode   = statusMode;
+
+    //     messages::StatusConfigSet statusSetResponse;
+    //     if (seatrac.send_request(sizeof(statusSet), (const uint8_t*)&statusSet, &statusSetResponse)) {
+    //             if (statusSetResponse.statusCode == CST_OK) return true;
+    //             else {
+    //                 if (err_out_ptr != nullptr) 
+    //                 *err_out_ptr << "Error sending status set request: " 
+    //                              << statusSetResponse 
+    //                              << std::endl;
+    //                 return false;
+    //             }
+    //     } else {
+    //          if (err_out_ptr != nullptr) *err_out_ptr << "Error sending status set request: Timeout reached" << std::endl;
+    //          return false;
+    //     }
+    // }
 
     //call this function in SeatracDriver::on_message under the CID_STATUS case to
     //print calibration data if calibration fields exist
@@ -92,10 +139,9 @@ namespace narval { namespace seatrac { namespace calibration {
     //Function walks user through a terminal calibration procedure
     //Ensure that printCalFeedback is being called in the status 
     //This is a blocking function
-    inline void calibrateAccelerometer(SeatracDriver& seatrac, std::ostream& out, std::istream& in, bool saveToEEPROM = false) {
+    inline bool calibrateAccelerometer(SeatracDriver& seatrac, std::ostream& out, std::istream& in, bool saveToEEPROM = false) {
         
-        turnOffCalFeedback(seatrac);
-        sleep_for(milliseconds(5));
+        command::status_config_set(seatrac, (STATUS_BITS_E)0x0);
         out << "---\tSeatrac Accelerometer Calibration\t---" << std::endl
             << "Press enter to begin. Once the X Y and Z limits are found, press enter again to finish and apply changes." << std::endl;        
         in.get();
@@ -103,40 +149,55 @@ namespace narval { namespace seatrac { namespace calibration {
         //reset the calibration values
         CalAction::Request resetCal;
         resetCal.action = CAL_ACC_RESET;
-        seatrac.send(sizeof(resetCal), (const uint8_t*)&resetCal);
-        sleep_for(milliseconds(5));
+        CalAction resetCalResp;
+        seatrac.send_request(sizeof(resetCal), (const uint8_t*)&resetCal, &resetCalResp);
+        //sleep_for(milliseconds(5));
 
         //print cal values and wait for user to finish calibration procedure
-        turnOnAccCalFeedback(seatrac);
+        command::status_config_set(seatrac, ACC_CAL);
         sleep_for(milliseconds(5));
         in.get();
-        turnOffCalFeedback(seatrac);
+        command::status_config_set(seatrac, (STATUS_BITS_E)0x0);
         sleep_for(milliseconds(5));
 
         //calculate the new calibration parameters & save to seatrac RAM
         CalAction::Request calculateCal;
         calculateCal.action = CAL_ACC_CALC;
-        seatrac.send(sizeof(calculateCal), (const uint8_t*)&calculateCal);
-        out << "Calibration values calculated and saved to RAM." << std::endl;
-        sleep_for(milliseconds(5));
+        CalAction calculateCalResp;
+        if(seatrac.send_request(sizeof(calculateCal), (const uint8_t*)&calculateCal, &calculateCalResp)) {
+            if(calculateCalResp.status == CST_OK) out << "Calibration values calculated and saved to RAM." << std::endl;
+            else {
+                out << "Error saving Calibration Values: " << calculateCalResp;
+                return false;
+            }
+        } else {
+            out << "Error saving Calibration Values: time out reached";
+            return false;
+        }
 
         //save the calibration settings to perminant EEPROM
         if(saveToEEPROM) {
             messages::SettingsSave::Request saveSettings;
-            seatrac.send(sizeof(saveSettings), (const uint8_t*)&saveSettings);
-            out << "Calibration values saved to EEPROM." << std::endl;
-            sleep_for(milliseconds(5));
+            messages::SettingsSave saveSettingsResp;
+            if(seatrac.send_request(sizeof(saveSettings), (const uint8_t*)&saveSettings, &saveSettingsResp)) {
+                if(saveSettingsResp.statusCode == CST_OK) out << "Calibration values saved to EEPROM." << std::endl;
+                else out << "Error saving Calibration Values: " << saveSettingsResp;
+            } else {
+                out << "Error saving Calibration Values: time out reached";
+                return false;
+            }
         } else {
             out << "Calibration values have not been saved to EEPROM." << std::endl;
+            return false;
         }
 
-        out << "Accelerometer calibration complete. Settings saved." << std::endl;
-
+        out << "Accelerometer calibration complete" << std::endl;
+        return true;
     }
 
 
     inline void calibrateMagnetometer(SeatracDriver& seatrac, std::ostream& out, std::istream& in, bool saveToEEPROM = false) {
-        turnOffCalFeedback(seatrac);
+        command::status_config_set(seatrac, (STATUS_BITS_E)0x0);
         sleep_for(milliseconds(5));
         out << "---\tSeatrac Magnetometer Calibration\t---" << std::endl
             << "Press enter to begin. Once the progress has reached 100%, press enter again to finish and apply changes." << std::endl;        
@@ -146,14 +207,11 @@ namespace narval { namespace seatrac { namespace calibration {
         CalAction::Request resetCal;
         resetCal.action = CAL_MAG_RESET;
         seatrac.send(sizeof(resetCal), (const uint8_t*)&resetCal);
-        sleep_for(milliseconds(5));
-
+        
         //print cal values and wait for user to finish calibration procedure
-        turnOnMagCalFeedback(seatrac);
-        sleep_for(milliseconds(5));
+        command::status_config_set(seatrac, MAG_CAL);
         in.get();
-        turnOffCalFeedback(seatrac);
-        sleep_for(milliseconds(5));
+        command::status_config_set(seatrac, (STATUS_BITS_E)0x0);
 
         //calculate the new calibration parameters & save to seatrac RAM
         CalAction::Request calculateCal;
