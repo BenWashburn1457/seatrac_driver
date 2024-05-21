@@ -272,7 +272,7 @@ Explaination:
     ID of the beacon that sent the response to send another ping to that beacon.
 
 Besides `SeatracDriver::on_message`, there are two other methods you can use to read a message from the beacon.
-`SeatracDriver::send_request` may be used of the message is a response to a command you sent. You can also
+`SeatracDriver::send_request` may be used if the message is a response to a command you sent. You can also
 use `SeatracDriver::wait_for_message(CID_E msgId, T* data, int64_t timeout)`. `wait_for_message` returns true
 if the message was sucessfully recieved and false otherwise. It has three arguements:
 
