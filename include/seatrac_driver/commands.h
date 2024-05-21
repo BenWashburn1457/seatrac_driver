@@ -62,15 +62,15 @@ inline messages::StatusConfigSet status_config_set(SeatracDriver& seatrac,
     messages::StatusConfigSet          response;
     messages::StatusConfigSet::Request request;
 
-    std::cout << "Filling parameters" << std::endl << std::flush;
+    //std::cout << "Filling parameters" << std::endl << std::flush;
     request.statusOutput = statusOutput;
     request.statusMode   = statusMode;
 
-    std::cout << "send request" << std::endl << std::flush;
+    //std::cout << "send request" << std::endl << std::flush;
     if(!seatrac.send_request(sizeof(request), (const uint8_t*)&request, &response, timeout)) {
         throw TimeoutReached();
     }
-    std::cout << "Got result" << std::endl << std::flush;
+    //std::cout << "Got result" << std::endl << std::flush;
 
     return response;
 }
