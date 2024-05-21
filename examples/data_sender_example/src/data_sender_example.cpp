@@ -60,6 +60,12 @@ class MyDriver : public SeatracDriver
                     std::cout << response << std::endl;
                 }
                 break;
+            case CID_DAT_SEND:
+                {
+                    messages::DataSend response;
+                    response = data;
+                    std::cout << response << std::endl;
+                }
 
             case CID_PING_ERROR:
                 {

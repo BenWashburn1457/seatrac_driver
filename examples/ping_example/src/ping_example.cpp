@@ -47,6 +47,11 @@ class MyDriver : public SeatracDriver
                     this->ping_beacon(response.beaconId, MSG_REQU);
 
                 } break;
+            case CID_PING_SEND: {
+                    messages::PingSend response;
+                    response = data;
+                    std::cout << response << std::endl;
+                }
 
             case CID_DAT_RECEIVE: {               
                     messages::DataReceive response;
