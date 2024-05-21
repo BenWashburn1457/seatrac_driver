@@ -26,6 +26,8 @@ namespace narval { namespace seatrac { namespace calibration {
 
     struct CalAction : public messages::Message<CalAction>{
 
+        using Message<CalAction>::operator=;
+
         static const CID_E Identifier = CID_CAL_ACTION;
         struct Request : public messages::Message<Request>{
             static const CID_E Identifier = CID_CAL_ACTION;
@@ -35,6 +37,13 @@ namespace narval { namespace seatrac { namespace calibration {
         CST_E status;
 
     }__attribute__((packed));
+
+    inline std::ostream& operator<<(std::ostream& os,
+                                const narval::seatrac::calibration::CalAction& msg)
+    {
+        os << "CalAction : " << msg.status << std::endl;
+        return os;
+    }
 
     // inline bool turnOnAccCalFeedback(SeatracDriver& seatrac, 
     //                     STATUS_BITS_E prevStatusBits=static_cast<STATUS_BITS_E>(0x0), 
@@ -207,7 +216,7 @@ namespace narval { namespace seatrac { namespace calibration {
         CalAction::Request resetCal;
         resetCal.action = CAL_MAG_RESET;
         seatrac.send(sizeof(resetCal), (const uint8_t*)&resetCal);
-        
+
         //print cal values and wait for user to finish calibration procedure
         command::status_config_set(seatrac, MAG_CAL);
         in.get();
