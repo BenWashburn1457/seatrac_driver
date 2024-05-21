@@ -144,7 +144,6 @@ namespace narval { namespace seatrac { namespace calibration {
         CalAction::Request calculateCal;
         calculateCal.action = CAL_MAG_CALC;
         CalAction calculateCalResp;
-        CalAction calculateCalResp;
         if(seatrac.send_request(sizeof(calculateCal), (const uint8_t*)&calculateCal, &calculateCalResp)) {
             if(calculateCalResp.status == CST_OK) out << "Calibration values calculated and saved to RAM." << std::endl;
             else {
