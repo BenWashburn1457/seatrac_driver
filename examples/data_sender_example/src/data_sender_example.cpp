@@ -32,8 +32,6 @@ class MyDriver : public SeatracDriver
 
         std::memcpy(message.packetData, data, message.packetLen); //copy the bytes (chars) from data into our message structure
 
-        std::cout << message << std::endl;                        //opperator overload - prints message content 
-
         this->send(sizeof(message), (const uint8_t*)&message);    //prepares data to send over serial line
 
     }
@@ -60,6 +58,12 @@ class MyDriver : public SeatracDriver
                     std::cout << response << std::endl;
                 }
                 break;
+            case CID_DAT_SEND:
+                {
+                    messages::DataSend response;
+                    response = data;
+                    std::cout << response << std::endl;
+                } break;
 
             case CID_PING_ERROR:
                 {

@@ -53,9 +53,9 @@ inline std::ostream& operator<<(std::ostream& os,
 inline std::ostream& operator<<(std::ostream& os,
                                 const narval::seatrac::messages::DataSend& msg)
 {
-    os << "DataSend Response: " 
-       << "\n- status: " << msg.status
-       << "\n- beaconId: " << msg.beaconId;
+    os << "DataSend Response: " << std::endl
+       << "- status: " << msg.status << std::endl
+       << "- beaconId: " << msg.beaconId << std::endl;
     return os;
 }
 

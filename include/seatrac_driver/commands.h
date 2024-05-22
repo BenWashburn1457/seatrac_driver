@@ -62,15 +62,15 @@ inline messages::StatusConfigSet status_config_set(SeatracDriver& seatrac,
     messages::StatusConfigSet          response;
     messages::StatusConfigSet::Request request;
 
-    std::cout << "Filling parameters" << std::endl << std::flush;
+    //std::cout << "Filling parameters" << std::endl << std::flush;
     request.statusOutput = statusOutput;
     request.statusMode   = statusMode;
 
-    std::cout << "send request" << std::endl << std::flush;
+    //std::cout << "send request" << std::endl << std::flush;
     if(!seatrac.send_request(sizeof(request), (const uint8_t*)&request, &response, timeout)) {
         throw TimeoutReached();
     }
-    std::cout << "Got result" << std::endl << std::flush;
+    //std::cout << "Got result" << std::endl << std::flush;
 
     return response;
 }
@@ -171,6 +171,27 @@ inline messages::PingSend ping_send(SeatracDriver& seatrac,
 
     request.target   = target;
     request.pingType = pingType;
+
+    if(!seatrac.send_request(sizeof(request), (const uint8_t*)&request, &response, timeout)) {
+        throw TimeoutReached();
+    }
+
+    return response;
+}
+inline messages::DataSend data_send(SeatracDriver& seatrac,
+    BID_E      target,
+    AMSGTYPE_E msgType,
+    uint8_t    data_length,
+    uint8_t*   data,
+    int64_t    timeout=1000) 
+{
+    messages::DataSend response;
+    messages::DataSend::Request request;
+
+    request.destId     = target;
+    request.msgType    = msgType;
+    request.packetLen  = std::min(data_length, (uint8_t)31);
+    std::memcpy(request.packetData, data, request.packetLen);
 
     if(!seatrac.send_request(sizeof(request), (const uint8_t*)&request, &response, timeout)) {
         throw TimeoutReached();
