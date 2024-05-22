@@ -178,6 +178,27 @@ inline messages::PingSend ping_send(SeatracDriver& seatrac,
 
     return response;
 }
+inline messages::DataSend data_send(SeatracDriver& seatrac,
+    BID_E      target,
+    AMSGTYPE_E msgType,
+    uint8_t    data_length,
+    uint8_t*   data,
+    int64_t    timeout=1000) 
+{
+    messages::DataSend response;
+    messages::DataSend::Request request;
+
+    request.destId     = target;
+    request.msgType    = msgType;
+    request.packetLen  = std::min(data_length, (uint8_t)31);
+    std::memcpy(request.packetData, data, request.packetLen);
+
+    if(!seatrac.send_request(sizeof(request), (const uint8_t*)&request, &response, timeout)) {
+        throw TimeoutReached();
+    }
+
+    return response;
+}
 
 inline messages::XcvrAnalyse background_noise(SeatracDriver& seatrac, int64_t timeout=1000)
 {
