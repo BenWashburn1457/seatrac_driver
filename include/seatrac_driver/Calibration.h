@@ -65,10 +65,9 @@ namespace narval { namespace seatrac { namespace calibration {
     }
 
     
-    //Call this function to run a calibration command
+    //Call this function to calibrate the accelerometer.
     //Function walks user through a terminal calibration procedure
-    //Ensure that printCalFeedback is being called in the status 
-    //This is a blocking function
+    //Ensure that printCalFeedback is being called in SeatracDriver::on_message
     inline bool calibrateAccelerometer(SeatracDriver& seatrac, std::ostream& out, std::istream& in, bool saveToEEPROM = false) {
         
         command::status_config_set(seatrac, (STATUS_BITS_E)0x0);
@@ -94,11 +93,12 @@ namespace narval { namespace seatrac { namespace calibration {
         if(seatrac.send_request(sizeof(calculateCal), (const uint8_t*)&calculateCal, &calculateCalResp)) {
             if(calculateCalResp.status == CST_OK) out << "Calibration values calculated and saved to RAM." << std::endl;
             else {
-                out << "Error saving Calibration Values to RAM";// << calculateCalResp;
+                out << "Error saving Calibration Values to RAM. Seatrac Response Status: " 
+                << calculateCalResp.status;
                 return false;
             }
         } else {
-            out << "Error saving Calibration Values: time out reached";
+            out << "Error saving Calibration Values to RAM: time out reached";
             return false;
         }
 
@@ -108,21 +108,26 @@ namespace narval { namespace seatrac { namespace calibration {
             messages::SettingsSave saveSettingsResp;
             if(seatrac.send_request(sizeof(saveSettings), (const uint8_t*)&saveSettings, &saveSettingsResp)) {
                 if(saveSettingsResp.statusCode == CST_OK) out << "Calibration values saved to EEPROM." << std::endl;
-                else out << "Error saving Calibration Values to EEPROM";// << saveSettingsResp;
+                else {
+                    out << "Error saving Calibration Values to EEPROM. Seatrac Response Status: " 
+                        << saveSettingsResp.statusCode;
+                    return false;
+                }
             } else {
                 out << "Error saving Calibration Values: time out reached";
                 return false;
             }
         } else {
             out << "Calibration values have not been saved to EEPROM." << std::endl;
-            return false;
         }
 
         out << "Accelerometer calibration complete" << std::endl;
         return true;
     }
 
-
+    //Call this function to calibrate the magnetometer.
+    //Function walks user through a terminal calibration procedure
+    //Ensure that printCalFeedback is being called in SeatracDriver::on_message
     inline bool calibrateMagnetometer(SeatracDriver& seatrac, std::ostream& out, std::istream& in, bool saveToEEPROM = false) {
         command::status_config_set(seatrac, (STATUS_BITS_E)0x0);
         out << "---\tSeatrac Magnetometer Calibration\t---" << std::endl
@@ -147,11 +152,12 @@ namespace narval { namespace seatrac { namespace calibration {
         if(seatrac.send_request(sizeof(calculateCal), (const uint8_t*)&calculateCal, &calculateCalResp)) {
             if(calculateCalResp.status == CST_OK) out << "Calibration values calculated and saved to RAM." << std::endl;
             else {
-                out << "Error saving Calibration Values to RAM";// << calculateCalResp;
+                out << "Error saving Calibration Values to RAM. Seatrac Response Status: " 
+                    << calculateCalResp.status;
                 return false;
             }
         } else {
-            out << "Error saving Calibration Values: time out reached";
+            out << "Error saving Calibration Values to RAM: time out reached";
             return false;
         }
 
@@ -161,17 +167,20 @@ namespace narval { namespace seatrac { namespace calibration {
             messages::SettingsSave saveSettingsResp;
             if(seatrac.send_request(sizeof(saveSettings), (const uint8_t*)&saveSettings, &saveSettingsResp)) {
                 if(saveSettingsResp.statusCode == CST_OK) out << "Calibration values saved to EEPROM." << std::endl;
-                else out << "Error saving Calibration Values to EEPROM";// << saveSettingsResp;
+                else {
+                    out << "Error saving Calibration Values to EEPROM. Seatrac Response Status: : " 
+                    << saveSettingsResp.statusCode;
+                    return false;
+                }
             } else {
-                out << "Error saving Calibration Values: time out reached";
+                out << "Error saving Calibration Values to EEPROM: time out reached";
                 return false;
             }
         } else {
             out << "Calibration values have not been saved to EEPROM." << std::endl;
-            return false;
         }
 
-        out << "Magnetometer calibration complete. Settings saved." << std::endl;
+        out << "Magnetometer calibration complete." << std::endl;
         return true;
     }
 
