@@ -94,11 +94,11 @@ namespace narval { namespace seatrac { namespace calibration {
             if(calculateCalResp.status == CST_OK) out << "Calibration values calculated and saved to RAM." << std::endl;
             else {
                 out << "Error saving Calibration Values to RAM. Seatrac Response Status: " 
-                << calculateCalResp.status;
+                << calculateCalResp.status << std::endl;
                 return false;
             }
         } else {
-            out << "Error saving Calibration Values to RAM: time out reached";
+            out << "Error saving Calibration Values to RAM: time out reached" << std::endl;
             return false;
         }
 
@@ -110,11 +110,11 @@ namespace narval { namespace seatrac { namespace calibration {
                 if(saveSettingsResp.statusCode == CST_OK) out << "Calibration values saved to EEPROM." << std::endl;
                 else {
                     out << "Error saving Calibration Values to EEPROM. Seatrac Response Status: " 
-                        << saveSettingsResp.statusCode;
+                        << saveSettingsResp.statusCode << std::endl;
                     return false;
                 }
             } else {
-                out << "Error saving Calibration Values: time out reached";
+                out << "Error saving Calibration Values: time out reached" << std::endl;
                 return false;
             }
         } else {
@@ -153,11 +153,11 @@ namespace narval { namespace seatrac { namespace calibration {
             if(calculateCalResp.status == CST_OK) out << "Calibration values calculated and saved to RAM." << std::endl;
             else {
                 out << "Error saving Calibration Values to RAM. Seatrac Response Status: " 
-                    << calculateCalResp.status;
+                    << calculateCalResp.status << std::endl;
                 return false;
             }
         } else {
-            out << "Error saving Calibration Values to RAM: time out reached";
+            out << "Error saving Calibration Values to RAM: time out reached" << std::endl;
             return false;
         }
 
@@ -168,12 +168,12 @@ namespace narval { namespace seatrac { namespace calibration {
             if(seatrac.send_request(sizeof(saveSettings), (const uint8_t*)&saveSettings, &saveSettingsResp)) {
                 if(saveSettingsResp.statusCode == CST_OK) out << "Calibration values saved to EEPROM." << std::endl;
                 else {
-                    out << "Error saving Calibration Values to EEPROM. Seatrac Response Status: : " 
-                    << saveSettingsResp.statusCode;
+                    out << "Error saving Calibration Values to EEPROM. Seatrac Response Status: " 
+                    << saveSettingsResp.statusCode << std::endl;
                     return false;
                 }
             } else {
-                out << "Error saving Calibration Values to EEPROM: time out reached";
+                out << "Error saving Calibration Values to EEPROM: time out reached" << std::endl;
                 return false;
             }
         } else {
