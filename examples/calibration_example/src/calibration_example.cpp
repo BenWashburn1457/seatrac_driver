@@ -39,13 +39,35 @@ int main(int argc, char *argv[])
     else { serial_port = argv[1]; }
 
     MyDriver seatrac(serial_port);
+    command::status_config_set(seatrac, (STATUS_BITS_E)0x0);
 
-    calibration::calibrateAccelerometer(seatrac, std::cout, std::cin, false);
-    calibration::calibrateMagnetometer(seatrac, std::cout, std::cin, false);
-    //NOTE: This example calls calibrate with saveToEEPROM=false.
-    //      That means the calibration settings will be lost once the 
-    //      the seatrac beacon is powered off. Change saveToEEPROM to
-    //      true to save the calibration settings perminantly.
+    int action;
+    std::cout << "Running Seatrac Modem Calibration:" << std::endl
+              << "Which calibration procedure would you like to execute?" << std::endl
+              << "\t1) Magnetometer Calibration" << std::endl
+              << "\t2) Magnetometer DRY RUN: settings only saved to RAM, not EEPROM" << std::endl
+              << "\t3) Accelerometer Calibration" << std::endl
+              << "\t4) Accelerometer DRY RUN: settings only saved to RAM, not EEPROM" << std::endl
+              << "\t5 or more) Exit" << std::endl
+              << "Enter a number: ";
+    scanf("%d", &action);
+    switch(action) {
+        case 1: {
+            calibration::calibrateMagnetometer(seatrac, std::cout, std::cin, true);
+        } break;
+        case 2: {
+            calibration::calibrateMagnetometer(seatrac, std::cout, std::cin, false);
+        } break;
+        case 3: {
+            calibration::calibrateAccelerometer(seatrac, std::cout, std::cin, true);
+        } break;
+        case 4: {
+            calibration::calibrateAccelerometer(seatrac, std::cout, std::cin, false);
+        } break;
+        default: {
+            std::cout << "Exiting Seatrac Modem Calibration" << std::endl;
+        } break;
+    }
 
     return 0;
 }

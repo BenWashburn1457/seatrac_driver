@@ -120,9 +120,9 @@ driver. For new users, these examples are the best place to start.
     the data recieved in its own terminal. Press enter without typing a message
     to close the program.
 * calibration_example:
-    Performs two example calibration sequences for the accelerometer and the 
-    magnetometer. In this example, the calibration settings are only saved to RAM
-    and will not override the settings already set on the beacon.
+    Walks the user through a calibration procedure for either the magnetometer or accelerometer.
+    You can run either a full calibration - which perminantly overrides prexisting calibration values - 
+    or a dry run - which only saves the values to RAM, leavning perminant memory untouched.
     To learn more about how to calibrate the beacon, read in the 
     [Seatrac Beacon User Guide, page 19](https://www.blueprintsubsea.com/downloads/seatrac/UM-140-P00918-03.pdf#page=19).
 * ros2_example:
