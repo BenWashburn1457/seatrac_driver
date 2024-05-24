@@ -291,6 +291,16 @@ if the message was sucessfully recieved and false otherwise. It has three arguem
 * `data`    : A struct that will be filled with the message data from the beacon
 * `timeout` : How long to wait for that message to be recieved
 
+## commands.h
+
+seatrac_driver provides a few high level functions in [commands.h](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/commands.h).
+
+A few notable functions in commands.h:
+
+* set_beacon_id: can be used to change the beacons Id
+* ping_send: sends a ping to another beacon
+* data_send: sends a data message to another beacon
+
 ## Seatrac Support Webpage
 https://www.blueprintsubsea.com/seatrac/support
 
