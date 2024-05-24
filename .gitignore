@@ -1,5 +1,7 @@
 .*.sw*
 **/build
+**/install
+**/log
 docs
 .*.sw*
 __pycache__
