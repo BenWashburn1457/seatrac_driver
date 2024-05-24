@@ -105,9 +105,33 @@ class MySeatracDriver : public SeatracDriver
 
 ## Examples
 
-This driver comes with 3 different examples detailing different features of the
+This driver comes with 4 different examples detailing different features of the
 driver. For new users, these examples are the best place to start.
-### To run each example: 
+
+### List of examples:
+* ping_example: 
+    Demonstrates the PING protocol. Sends a ping request to a nearby beacon with id 15.
+    Once it receives a response, it prints out the data and sends another request to 
+    the same beacon. Terminates once the enter key is pressed.
+* data_send_example:
+    Run data_send_example in two terminals connected to each beacon.
+    Demonstrates the DAT protocol. You will be prompted to enter a string. It will 
+    then send the string (up to 31 chars) to the other beacon, which will print 
+    the data recieved in its own terminal. Press enter without typing a message
+    to close the program.
+* calibration_example:
+    Performs two example calibration sequences for the accelerometer and the 
+    magnetometer. In this example, the calibration settings are only saved to RAM
+    and will not override the settings already set on the beacon.
+    To learn more about how to calibrate the beacon, read in the 
+    [Seatrac Beacon User Guide, page 19](https://www.blueprintsubsea.com/downloads/seatrac/UM-140-P00918-03.pdf#page=19).
+* ros2_example:
+    A ros2 node built for the humble distribution that publishes ping or data messages
+    recieved by the beacon and subscribes to ping or data messages to send to other
+    beacons.
+
+### To run ping_example, data_send_example, or calibration_example: 
+
 1. Connect 2 beacons to your computer and place them together in water. 
 2. Navigate to the example's folder `seatrac_driver/examples/<example_name>`
 3. Build the example:
@@ -127,25 +151,12 @@ driver. For new users, these examples are the best place to start.
     The executable name is the same as example folder name.
     It takes one arguement - the serial port that the seatrac modem is 
     connected too (for example `/dev/ttyUSB0`).
-
-### List of examples:
-* ping_example: 
-    Demonstrates the PING protocol. Sends a ping request to a nearby beacon with id 15.
-    Once it receives a response, it prints out the data and sends another request to 
-    the same beacon. Terminates once the enter key is pressed.
-* data_send_example:
-    Run data_send_example in two terminals connected to each beacon.
-    Demonstrates the DAT protocol. You will be prompted to enter a string. It will 
-    then send the string (up to 31 chars) to the other beacon, which will print 
-    the data recieved in its own terminal. Press enter without typing a message
-    to close the program.
-* calibration_example:
-    Performs two example calibration sequences for the accelerometer and the 
-    magnetometer. In this example, the calibration settings are only saved to RAM
-    and will not override the settings already set on the beacon.
-    To learn more about how to calibrate the beacon, read in the 
-    [Seatrac Beacon User Guide, page 19](https://www.blueprintsubsea.com/downloads/seatrac/UM-140-P00918-03.pdf#page=19).
     
+### To run ros2_example:
+
+1. In a terminal with admin permissions, navigate to `seatrac_driver/examples/ros2_example`
+2. Build the example and source local setup: `colcon build && source ./install/setup.bash`
+3. Run: `ros2 run seatrac modem`
 
 ## Interfacing with the seatrac beacon
 The seatrac_driver interfaces with the beacon through a serial connection. Messages are sent both ways
