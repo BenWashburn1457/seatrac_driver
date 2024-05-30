@@ -1,4 +1,4 @@
-f# FRoSt seatrac_driver
+# FRoSt seatrac_driver
 
 This is a c++ driver for the Blueprint Subsea Seatrac USBL receiver.
 
