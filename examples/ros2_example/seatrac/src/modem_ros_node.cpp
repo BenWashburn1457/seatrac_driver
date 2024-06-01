@@ -50,6 +50,7 @@ public:
         auto msg = seatrac_interfaces::msg::ModemRec();
         msg.msg_id = CID_DAT_RECEIVE;
         msg.packet_len = response.packetLen;
+        msg.local_flag = response.localFlag;
         std::memcpy(&msg.packet_data, response.packetData, response.packetLen);
         cpyFixtoRosmsg(msg, response.acoFix);
 
@@ -71,6 +72,7 @@ public:
         auto msg = seatrac_interfaces::msg::ModemRec();
         msg.msg_id = CID_PING_RESP;
         msg.packet_len = 0;
+        msg.local_flag = true; //Ping messages are not sniffed.
         cpyFixtoRosmsg(msg, response.acoFix);
 
         RCLCPP_INFO(this->get_logger(), "Publishing ModemRec CID_PING_RESP");

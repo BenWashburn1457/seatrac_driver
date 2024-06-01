@@ -20,6 +20,11 @@ struct DataReceive : public Message<DataReceive>
                         // A value of 0 indicate no data is present.
     uint8_t packetData[31]; // The array of data received in the DAT acoustic packet
 
+    bool localFlag; // True if an acoustic DAT message has been received that is
+                    // address for this local beacon (or a broadcast to all).
+                    // This flag is the same as the Boolean result of logical test
+                    // “ACO_FIX.DEST_ID = LOCAL_BEACON_ID or BEACON_ALL”
+
     DataReceive& operator=(const std::vector<uint8_t>& other)
     {
         if(other[0] != this->msgId) {
@@ -31,6 +36,7 @@ struct DataReceive : public Message<DataReceive>
         this->ackFlag = p[0];
         this->packetLen = p[1];
         std::memcpy(this->packetData, p+2, this->packetLen);
+        this->localFlag = p[2+this->packetLen];
 
         return *this;
     }
@@ -61,6 +67,7 @@ inline std::ostream& operator<<(std::ostream& os,
     for(uint8_t i=0; i<msg.packetLen; i++) {
         printf("%d ", msg.packetData[i]);
     }
+    os << "\nLocal Flag: " << msg.localFlag;
     return os;
 }
 
