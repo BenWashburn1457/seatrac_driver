@@ -67,7 +67,7 @@ inline std::ostream& operator<<(std::ostream& os,
     for(uint8_t i=0; i<msg.packetLen; i++) {
         printf("%d ", msg.packetData[i]);
     }
-    os << "\nLocal Flag: " << msg.localFlag;
+    os << "\nLocal Flag: " << (msg.localFlag ? "True":"False");
     return os;
 }
 
