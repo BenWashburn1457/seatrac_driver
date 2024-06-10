@@ -18,7 +18,7 @@ struct DataReceive : public Message<DataReceive>
     uint8_t packetLen;  // The number of bytes sent in the DAT acoustic
                         // packet. Valid values are from 0 to 31.
                         // A value of 0 indicate no data is present.
-    uint8_t packetData[31]; // The array of data received in the DAT acoustic packet
+    uint8_t packetData[DAT_PAYLOAD_MAX_SIZE]; // The array of data received in the DAT acoustic packet
 
     bool localFlag; // True if an acoustic DAT message has been received that is
                     // address for this local beacon (or a broadcast to all).

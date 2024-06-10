@@ -28,7 +28,7 @@ class MyDriver : public SeatracDriver
         
         message.destId    = destId;                               //beacon it's sending the data to
         message.msgType   = msgType;                              //type of message being sent
-        message.packetLen = std::min(data_length, (uint8_t)31);   //the length of data packet (must be no more than 31 bytes)
+        message.packetLen = std::min(data_length, (uint8_t)DAT_PAYLOAD_MAX_SIZE);   //the length of data packet (must be no more than 30 bytes)
 
         std::memcpy(message.packetData, data, message.packetLen); //copy the bytes (chars) from data into our message structure
 
@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
 
     MyDriver seatrac(serial_port);
 
-    std::string message_txt(31, 'x');
+    std::string message_txt(DAT_PAYLOAD_MAX_SIZE, 'x');
 
     for (int i=0; i<50; i++) {
         std::cout << "message text: " << std::flush;

@@ -5,6 +5,14 @@
 #include <iostream>
 #include <sstream>
 
+
+// the max number of bytes that can be sent using the DAT or ECHO protocol
+#define DAT_PAYLOAD_MAX_SIZE 30
+
+// the max number of bytes that can be sent using the NAV protocol
+#define NAV_PAYLOAD_MAX_SIZE 29
+
+
 namespace narval { namespace seatrac {
 
 /**
