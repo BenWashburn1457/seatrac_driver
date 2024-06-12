@@ -190,7 +190,7 @@ inline messages::DataSend data_send(SeatracDriver& seatrac,
 
     request.destId     = target;
     request.msgType    = msgType;
-    request.packetLen  = std::min(data_length, (uint8_t)DAT_PAYLOAD_MAX_SIZE);
+    request.packetLen  = std::min(data_length, (uint8_t)sizeof(request.packetData));
     std::memcpy(request.packetData, data, request.packetLen);
 
     if(!seatrac.send_request(sizeof(request), (const uint8_t*)&request, &response, timeout)) {

@@ -16,7 +16,7 @@ struct DataSend : public Message<DataSend> {
         BID_E destId;
         AMSGTYPE_E msgType;
         uint8_t packetLen;
-        uint8_t packetData[DAT_PAYLOAD_MAX_SIZE];
+        uint8_t packetData[30];
     }__attribute__((packed));
 
     CST_E status;
