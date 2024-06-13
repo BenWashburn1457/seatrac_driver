@@ -141,12 +141,12 @@ private:
     msg.rssi = acoFix.rssi;
 
 
-    msg.range_valid = (acoFix.flags & 0x1)? true:false;
-    msg.usbl_valid = (acoFix.flags & 0x2)? true:false;
-    msg.position_valid = (acoFix.flags & 0x4)? true:false;
+    msg.range_valid = (acoFix.flags & RANGE_VALID)? true:false;
+    msg.usbl_valid = (acoFix.flags & USBL_VALID)? true:false;
+    msg.position_valid = (acoFix.flags & POSITION_VALID)? true:false;
 
-    msg.position_enhanced = (acoFix.flags & 0x8)? true:false;
-    msg.position_flt_error = (acoFix.flags & 0x10)? true:false;
+    msg.position_enhanced = (acoFix.flags & POSITION_ENHANCED)? true:false;
+    msg.position_flt_error = (acoFix.flags & POSITION_FLT_ERROR)? true:false;
 
     if(msg.range_valid) {
       msg.range_count = acoFix.range.count;

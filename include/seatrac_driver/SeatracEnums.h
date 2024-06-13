@@ -611,6 +611,23 @@ enum XCVR_FLAGS_E : uint8_t {
                                // CID_XCVR_RX_UNHANDLED)
 };
 
+enum ACOFIX_FLAGS : uint8_t {
+    POSITION_FLT_ERROR = 0x10,  // If this bit is true, it indicates the position filter has identified
+                                // that the position specified in the fix may be invalid based on
+                                // the beacons previous position, the define beacons motion
+                                // limits and the time since last communication. However, the
+                                // position fields still contain the USBL computed position and it
+                                // is up to the user if they wish to reject this fix, or use it in some
+                                // direct or weighted fashion.
+    POSITION_ENHANCED = 0x08,   // If this bit is set, it indicates the Position fix has been computed
+                                // from an Enhanced USBL return – this means the Depth will be
+                                // the value from the remote beacons depth sensor rather than
+                                // computed form the incoming signal angle.
+    POSITION_VALID = 0x04,      // If this bit is set, it indicates the record contains the Position fields
+    USBL_VALID = 0x02,          // If this bit is set, it indicates the record contains the USBL fields
+    RANGE_VALID = 0x01,         // If this bit is set, it indicates the record contains the Range fields
+};
+
 }; //namespace seatrac
 }; //namespace narval
 
