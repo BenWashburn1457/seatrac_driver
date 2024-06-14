@@ -611,6 +611,16 @@ enum XCVR_FLAGS_E : uint8_t {
                                // CID_XCVR_RX_UNHANDLED)
 };
 
+enum XCVR_TXMSGCTRL_E : uint8_t {
+    XCVR_TXMSG_ALLOW_ALL = 0x0,  // Allow transmission of all messages
+    XCVR_TXMSG_BLOCK_RESP = 0x1, // Block transmission of response messages. Automatic
+                                 // transmission of Response Messages after a Request
+                                 // message is received are blocked.
+    XCVR_TXMSG_BLOCK_ALL = 0x3,  // Block transmission of all messages. Transmit
+                                 // commands function as normal except no physical
+                                 // transmission is started.
+};
+
 enum ACOFIX_FLAGS : uint8_t {
     POSITION_FLT_ERROR = 0x10,  // If this bit is true, it indicates the position filter has identified
                                 // that the position specified in the fix may be invalid based on
