@@ -76,8 +76,8 @@ int main(int argc, char *argv[])
 {
 
     std::string serial_port;
-    if (argc == 1) { serial_port = "/dev/ttyUSB0"; }
-    else { serial_port = argv[1]; }
+    if (argc == 1) serial_port = "/dev/ttyUSB0";
+    else serial_port = argv[1];
 
     MyDriver seatrac(serial_port);    
 

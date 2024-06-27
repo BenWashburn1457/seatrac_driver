@@ -12,7 +12,6 @@
 
 using namespace narval::seatrac;
 
-toml::v3::node_view<toml::v3::node> n;
 void upload_config_settings(SeatracDriver& seatrac, std::string config_file_path="./seatrac_config.toml") {
 
     std::cout << "starting upload settings to seatrac beacon" << std::endl;
@@ -31,7 +30,7 @@ void upload_config_settings(SeatracDriver& seatrac, std::string config_file_path
         case 50:  settings.statusFlags = STATUS_MODE_5HZ;    break;
         case 100: settings.statusFlags = STATUS_MODE_10HZ;   break;
         case 250: settings.statusFlags = STATUS_MODE_25HZ;   break;
-        default:  throw; //"Seatrac Config Error: value of status_report_frequency_hertz is invalid";
+        default:  std::cout << "Seatrac Config Error: value of status_report_frequency_hertz is invalid" << std::endl;
     };
     settings.status_output = (STATUS_BITS_E)(
           ENVIRONMENT    * seatrac_config["status_include_temp_pressure_depth_vos"].value_or(false)
@@ -79,11 +78,10 @@ void upload_config_settings(SeatracDriver& seatrac, std::string config_file_path
 
     settings.xcvrRangeTmo = (uint16_t)seatrac_config["transceiver_range_timeout_meters"].value_or(1000);
     if(settings.xcvrRangeTmo>3000 || settings.xcvrRangeTmo<1000)
-        throw "Seatrac Config Error: transceiver_range_timeout_meters must be between 1000 and 3000 m";
+        std::cout << "Seatrac Config Error: transceiver_range_timeout_meters must be between 1000 and 3000 m" << std::endl;
     settings.xcvrRespTime = (uint16_t)seatrac_config["transceiver_response_delay_milliseconds"].value_or(10);
     if(settings.xcvrRespTime>1000 || settings.xcvrRespTime<10)
-        throw "Seatrac Config Error: transceiver_response_delay_milliseconds must be between 10 and 1000 ms";
-    
+        std::cout << "Seatrac Config Error: transceiver_response_delay_milliseconds must be between 10 and 1000 ms" << std::endl;
 
     settings.xcvrPosfltVel = (uint8_t)(seatrac_config["pos_filter_velocity_limit_meters_per_sec"].value_or(3));
     settings.xcvrPosfltAng = (uint8_t)(seatrac_config["pos_filter_angle_limit_degrees"].value_or(10));
