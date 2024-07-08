@@ -110,9 +110,9 @@ inline std::ostream& operator<<(std::ostream& os,
             printf("%d ", msg.packetData[i]);
         }
         os << "\nLocal Flag: " << (msg.localFlag ? "True":"False");
-        return os;
     }
     else os << "\n- packet data: no data";
+    return os;
 }
 
 #endif //_DEF_SEATRAC_DRIVER_MESSAGES_NAV_QUERY_RESP_H_
