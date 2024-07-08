@@ -51,7 +51,7 @@ class MyDriver : public SeatracDriver
                     messages::PingSend response;
                     response = data;
                     std::cout << response << std::endl;
-                }
+                } break;
 
             case CID_DAT_RECEIVE: {               
                     messages::DataReceive response;
