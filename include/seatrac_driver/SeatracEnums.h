@@ -861,4 +861,21 @@ inline std::ostream& operator<<(std::ostream& os, narval::seatrac::STATUSMODE_E 
     return os;
 }
 
+inline std::ostream& operator<<(std::ostream& os, narval::seatrac::NAV_QUERY_E flags)
+{
+    std::ostringstream oss;
+
+    if(flags & narval::seatrac::QRY_DATA)       oss << " | QRY_DATA";
+    if(flags & narval::seatrac::QRY_ATTITUDE)   oss << " | QRY_ATTITUDE";
+    if(flags & narval::seatrac::QRY_TEMP)       oss << " | QRY_TEMP";
+    if(flags & narval::seatrac::QRY_SUPPLY)     oss << " | QRY_SUPPLY";
+    if(flags & narval::seatrac::QRY_DEPTH)      oss << " | QRY_DEPTH";
+
+    if(oss.str().size() > 2)
+        os << oss.str().substr(3);
+    else
+        os << "None";
+    return os;
+}
+
 #endif //_DEF_SEATRAC_DRIVER_SEATRAC_ENUMS_H_
