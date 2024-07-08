@@ -30,6 +30,11 @@
 #include <seatrac_driver/messages/EchoResp.h>
 #include <seatrac_driver/messages/EchoError.h>
 
+#include <seatrac_driver/messages/NavQuerySend.h>
+#include <seatrac_driver/messages/NavQueryReq.h>
+#include <seatrac_driver/messages/NavQueryResp.h>
+#include <seatrac_driver/messages/NavError.h>
+
 #include <seatrac_driver/messages/XcvrAnalyse.h>
 #include <seatrac_driver/messages/XcvrStatus.h>
 #include <seatrac_driver/messages/XcvrReceptionError.h>

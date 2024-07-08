@@ -89,6 +89,12 @@ inline std::ostream& operator<<(std::ostream& os,
     if(msg.queryFlags & narval::seatrac::QRY_TEMP)
          os << "\n- remote temperature: " << msg.remoteTemp;
     else os << "\n- remote temperature: no data";
+    if(msg.queryFlags & narval::seatrac::QRY_ATTITUDE) {
+        os << "\n- attitude:"
+           << "\n\t- remote yaw: " << msg.remoteYaw
+           << "\n\t- remote pitch: " << msg.remotePitch
+           << "\n\t- remote roll: " << msg.remoteRoll;
+    } else os << "\n- attitude: no data";
     if(msg.queryFlags & narval::seatrac::QRY_DATA) {
         os << "\n- Packet Length: " << (int)msg.packetLen
         << "\n- Packet Data:\n\t- (char):\t";
