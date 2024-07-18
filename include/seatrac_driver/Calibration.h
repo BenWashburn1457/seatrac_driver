@@ -117,8 +117,6 @@ namespace narval { namespace seatrac { namespace calibration {
                 out << "Error saving Calibration Values: time out reached" << std::endl;
                 return false;
             }
-        } else {
-            out << "Calibration values have not been saved to EEPROM." << std::endl;
         }
 
         out << "Accelerometer calibration complete" << std::endl;
@@ -176,8 +174,6 @@ namespace narval { namespace seatrac { namespace calibration {
                 out << "Error saving Calibration Values to EEPROM: time out reached" << std::endl;
                 return false;
             }
-        } else {
-            out << "Calibration values have not been saved to EEPROM." << std::endl;
         }
 
         out << "Magnetometer calibration complete." << std::endl;
