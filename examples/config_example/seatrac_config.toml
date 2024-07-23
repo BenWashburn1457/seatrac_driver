@@ -1,7 +1,7 @@
 
 [SeatracConfig] # These are configurations set to the seatrac driver
 
-beacon_id           = 16 # valid ids are 1-15
+beacon_id           = 15 # valid ids are 1-15
 env_salinity_ppt    = 0  # 0 ppt for fresh water and 35 ppt for salt water
 
 transceiver_range_timeout_meters         = 1000

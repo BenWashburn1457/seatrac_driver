@@ -5,6 +5,8 @@
 #include <seatrac_driver/commands.h>
 #include <seatrac_driver/Calibration.h>
 
+#include "toml.hpp"
+
 using namespace std::chrono_literals;
 using namespace narval::seatrac;
 
@@ -49,36 +51,88 @@ bool yn_answer() {
         std::cout << "Invalid response. Please enter 'y' or 'n': ";
         }
 }
+void upload_config_settings(SeatracDriver& seatrac, SETTINGS_T& settings, std::string config_file_path="./seatrac_config.toml") {
 
-int main(int argc, char *argv[]) {
+    std::cout << "starting upload config settings to seatrac beacon" << std::endl;
 
-    std::cout << "=== Seatrac Beacon Setup Tool ==="    << std::endl << std::endl;
-            //   << "Procedure:"                           << std::endl
-            //   << " - Connect to Beacon"                 << std::endl
-            //   << " - Set Beacon Id"                     << std::endl
-            //   << " - Set Beacon Settings"               << std::endl
-            //   << " - Calibrate Magnetometer"            << std::endl;
+    auto config = toml::parse_file(config_file_path);
+    auto seatrac_config = config["SeatracConfig"];
 
-    bool cont = true;
-    while(cont) {
-        std::cout << "Enter Serial Port (or blank for default '/dev/ttyUSB0'): ";
-        char serial_port[20];
-        fgets(serial_port, sizeof(serial_port), stdin);
-        serial_port[strlen(serial_port)-1] = 0x00;
-        if(strlen(serial_port) == 0) strcpy(serial_port, "/dev/ttyUSB0");
+    switch((int)(seatrac_config["status_report_frequency_hertz"].value_or(0.0)*10)) {
+        case 0:   settings.statusFlags = STATUS_MODE_MANUAL; break;
+        case 10:  settings.statusFlags = STATUS_MODE_1HZ;    break;
+        case 25:  settings.statusFlags = STATUS_MODE_2HZ5;   break;
+        case 50:  settings.statusFlags = STATUS_MODE_5HZ;    break;
+        case 100: settings.statusFlags = STATUS_MODE_10HZ;   break;
+        case 250: settings.statusFlags = STATUS_MODE_25HZ;   break;
+        default:  throw std::runtime_error("Seatrac Config Error: value of status_report_frequency_hertz is invalid");
+    };
+    settings.status_output = (STATUS_BITS_E)(
+          ENVIRONMENT    * seatrac_config["status_include_temp_pressure_depth_vos"].value_or(false)
+        | ATTITUDE       * seatrac_config["status_include_yaw_pitch_roll"].value_or(false)
+        | MAG_CAL        * seatrac_config["status_include_mag_cal_data"].value_or(false)
+        | ACC_CAL        * seatrac_config["status_include_accel_cal_data"].value_or(false)
+        | AHRS_RAW_DATA  * seatrac_config["status_include_uncompensated_accel_mag_gyro"].value_or(false)
+        | AHRS_COMP_DATA * seatrac_config["status_include_compensated_accel_mag_gyro"].value_or(false)
+    );
 
-        {
-        std::cout << "Connecting to Beacon... ";
-        MyDriver seatrac(serial_port);
-        SETTINGS_T origional_settings = command::settings_get(seatrac).settings;
-        SETTINGS_T settings = origional_settings;
-        command::status_config_set(seatrac, (STATUS_BITS_E)0x0); 
-        std::cout << "Done" << std::endl;
+    settings.envFlags = (ENV_FLAGS_E)(
+          AUTO_VOS          * seatrac_config["auto_calc_velocity_of_sound"].value_or(true)
+        | AUTO_PRESSURE_OFS * seatrac_config["auto_calc_pressure_offset"].value_or(true)
+    );
+    // settings.envPressureOfs = 0; //value will be overwritten if auto_calc_pressure_offset is true
+    // settings.envVos = 0; //value will be overwritten if auto_calc_velocity_of_sound is true
 
-        std::cout << "View current settings (y/n)? ";
-        if(yn_answer()) std::cout << settings << std::endl << std::endl;
+    settings.envSalinity = (uint8_t)(10*seatrac_config["env_salinity_ppt"].value_or(0.0));
 
-        // Change beacon id
+    settings.ahrsFlags = (AHRS_FLAGS_E)seatrac_config["automatic_mag_calibration"].value_or(false);
+    
+    settings.ahrsYawOfs   = 0;
+    settings.ahrsPitchOfs = 0;
+    settings.ahrsRollOfs  = 0;
+
+    XCVR_TXMSGCTRL_E msgctrl = 
+    seatrac_config["transceiver_block_send_all"].value_or(false)? 
+        XCVR_TXMSG_BLOCK_ALL
+        : (seatrac_config["transceiver_block_send_response"].value_or(false)? 
+            XCVR_TXMSG_BLOCK_RESP
+            : XCVR_TXMSG_ALLOW_ALL);
+
+    settings.xcvrFlags = (XCVR_FLAGS_E)(
+          USBL_USE_AHRS      //* seatrac_config["usbl_use_AHRS"].value_or(true)
+        | XCVR_POSFLT_ENABLE * seatrac_config["position_filter_enabled"].value_or(true)
+        | XCVR_USBL_MSGS     * seatrac_config["report_transceiver_usbl_msgs"].value_or(false)
+        | XCVR_FIX_MSGS      * seatrac_config["report_transceiver_fix_msgs"].value_or(false)
+        | XCVR_DIAG_MSGS     * seatrac_config["report_transceiver_msg_diagnostics"].value_or(false)
+        | (msgctrl << 3) //XCVR_TXMSGCTRL_E takes up the 3rd and 4th bits of 
+    );
+
+    settings.xcvrBeaconId = (BID_E)seatrac_config["beacon_id"].value_or(1);
+    if(settings.xcvrBeaconId<1 || settings.xcvrBeaconId>15)
+        throw std::runtime_error("Seatrac Config Error: beacon_id must be between 1 and 15");
+
+    settings.xcvrRangeTmo = (uint16_t)seatrac_config["transceiver_range_timeout_meters"].value_or(1000);
+    if(settings.xcvrRangeTmo>3000 || settings.xcvrRangeTmo<1000)
+        throw std::runtime_error("Seatrac Config Error: transceiver_range_timeout_meters must be between 1000 and 3000 m");
+    settings.xcvrRespTime = (uint16_t)seatrac_config["transceiver_response_delay_milliseconds"].value_or(10);
+    if(settings.xcvrRespTime>1000 || settings.xcvrRespTime<10)
+        throw std::runtime_error("Seatrac Config Error: transceiver_response_delay_milliseconds must be between 10 and 1000 ms");
+
+    settings.xcvrPosfltVel = (uint8_t)(seatrac_config["pos_filter_velocity_limit_meters_per_sec"].value_or(3));
+    settings.xcvrPosfltAng = (uint8_t)(seatrac_config["pos_filter_angle_limit_degrees"].value_or(10));
+    settings.xcvrPosfltTmo = (uint8_t)(seatrac_config["pos_filter_timeout_seconds"].value_or(60));
+
+    //std::cout << settings << std::endl;
+
+    std::cout << "uploading settings to beacon" << std::endl;
+    messages::SettingsSet resp = command::settings_set(seatrac, settings);
+    if(resp.statusCode != CST_OK)
+        throw std::runtime_error("Seatrac Config Error: Error saving settings to seatrac beacon");
+    std::cout << "Automatic Config Settings upload complete." << std::endl << std::endl;
+    return;
+}
+void manual_set_settings(MyDriver& seatrac, SETTINGS_T& settings) {
+            // Change beacon id
         std::cout << "Current Beacon Id: " << (int)settings.xcvrBeaconId << std::endl
                   << "Change Beacon Id (y/n)? ";
         if(yn_answer()) {
@@ -166,28 +220,35 @@ int main(int argc, char *argv[]) {
                 if(yn_answer()) settings.xcvrFlags = (XCVR_FLAGS_E)(settings.xcvrFlags | XCVR_DIAG_MSGS);
             }
 
-            std::cout << "Saving serial report settings" << std::endl;
+            std::cout << "Saving serial report settings... ";
             command::settings_set(seatrac, settings);
-            std::cout << "done" << std::endl << std::endl;
+            std::cout << "done" << std::endl;
         }
 
         std::cout << "View and modify transciever and sensor settings (y/n)? ";
         if(yn_answer()) {
-            std::cout << "Current transceiver flags: " << settings.xcvrFlags << std::endl
-                      << "Currently automatic mag calibration is set to " << (bool)settings.ahrsFlags
-                      << "Modify transceiver flags and auto mag cal? ";
+            std::cout << "Use position filter: " << ((settings.xcvrFlags & XCVR_POSFLT_ENABLE)? "true":"false") << std::endl
+                      << "Use ahrs for usbl position: " << ((settings.xcvrFlags & USBL_USE_AHRS)? "true":"false") << std::endl
+                      << "Automatic pressure offset calculation: " << ((settings.envFlags&AUTO_PRESSURE_OFS)? "true":"false") << std::endl
+                      << "Automatic velocity of sound calculation: " << ((settings.envFlags&AUTO_VOS)? "true":"false") << std::endl
+                      << "automatic magnetometer calibration: " << (settings.ahrsFlags? "true":"false") << std::endl;
+            std::cout << "Modify any of these settings (y/n)? ";
             if(yn_answer()) {
-                settings.xcvrFlags = (XCVR_FLAGS_E)0x00;
-                std::cout << "Use Mag, Accel and Gyro to calculate usbl position (y/n)? ";
+                settings.xcvrFlags = (XCVR_FLAGS_E)(settings.xcvrFlags & 0xE0);
+                std::cout << "Use position filter (y/n)? ";
+                settings.xcvrFlags = (XCVR_FLAGS_E)(settings.xcvrFlags | yn_answer() * XCVR_POSFLT_ENABLE);
+                std::cout << "Use Mag, Accel and Gyro (arhs) to calculate usbl position (y/n)? ";
                 settings.xcvrFlags = (XCVR_FLAGS_E)(settings.xcvrFlags | yn_answer() * USBL_USE_AHRS);
-
+                std::cout << "Automatic pressure offset calculation (y/n)? ";
+                bool auto_p_ofs = yn_answer();
+                std::cout << "Automatic velocity of sound calculation (y/n)? ";
+                settings.envFlags = (ENV_FLAGS_E)(yn_answer()*AUTO_VOS | auto_p_ofs*AUTO_PRESSURE_OFS);
                 std::cout << "Automatic Mag Calibration (y/n)? ";
                 settings.ahrsFlags = (AHRS_FLAGS_E)yn_answer();
-
-                std::cout << "Saving settings... ";
-                command::settings_set(seatrac, settings);
-                std::cout << "done" << std::endl << std::endl;   
             }
+            std::cout << "Saving transciever and sensor settings... ";
+            command::settings_set(seatrac, settings);
+            std::cout << "done" << std::endl << std::endl;   
         }
 
         // Other settings (ones that shouldn't change but good to check to make sure they're not corrupted)
@@ -196,13 +257,90 @@ int main(int argc, char *argv[]) {
         // settings.envFlags      = (ENV_FLAGS_E)(AUTO_VOS | AUTO_PRESSURE_OFS);
         // settings.ahrsFlags     = AUTO_CAL_MAG;
 
-        settings.xcvrRangeTmo  = 1000;
-        settings.xcvrRespTime  = 10;
-        settings.xcvrPosfltVel = 3;
-        settings.xcvrPosfltAng = 10;
-        settings.xcvrPosfltTmo = 60;
+        // settings.xcvrRangeTmo  = 1000;
+        // settings.xcvrRespTime  = 10;
+        // settings.xcvrPosfltVel = 3;
+        // settings.xcvrPosfltAng = 10;
+        // settings.xcvrPosfltTmo = 60;
 
         command::settings_set(seatrac, settings);
+        std::cout << "Manual Settings upload complete." << std::endl << std::endl; 
+}
+
+int main(int argc, char *argv[]) {
+
+    std::cout << "=== Seatrac Beacon Setup Tool ==="    << std::endl << std::endl;
+            //   << "Procedure:"                           << std::endl
+            //   << " - Connect to Beacon"                 << std::endl
+            //   << " - Set Beacon Id"                     << std::endl
+            //   << " - Set Beacon Settings"               << std::endl
+            //   << " - Calibrate Magnetometer"            << std::endl;
+
+    bool cont = true;
+    while(cont) {
+        std::cout << "Enter Serial Port (or blank for default '/dev/ttyUSB0'): ";
+        char serial_port[30];
+        fgets(serial_port, sizeof(serial_port), stdin);
+        serial_port[strlen(serial_port)-1] = 0x00;
+        if(strlen(serial_port) == 0) strcpy(serial_port, "/dev/ttyUSB0");
+
+        {
+        std::cout << "Connecting to Beacon... ";
+        MyDriver seatrac(serial_port);
+        SETTINGS_T origional_settings = command::settings_get(seatrac).settings;
+        SETTINGS_T settings = origional_settings;
+        command::status_config_set(seatrac, (STATUS_BITS_E)0x0); 
+        std::cout << "Done" << std::endl;
+
+        std::cout << "View current settings (y/n)? ";
+        if(yn_answer()) std::cout << settings << std::endl << std::endl;
+
+        std::cout << "How would you like to enter beacon settings?" << std::endl
+                  << "  'm': manual,  'c': config file,  's': skip to calibration  (m/c/s)? ";
+        while(true) {
+            char ans;
+            if(scanf("%c", &ans)) {
+                if(ans == 'm') {
+                    skip_cin_line();
+                    manual_set_settings(seatrac, settings);
+                    break;
+                }
+                if(ans == 'c') {
+                    skip_cin_line();
+                    std::cout << "Enter config file path (or blank for default './seatrac_config.toml'): ";
+                    char config_path[100];
+                    fgets(config_path, sizeof(config_path), stdin);
+                    config_path[strlen(config_path)-1] = 0x00;
+                    if(strlen(config_path) == 0) strcpy(config_path, "./seatrac_config.toml");
+                    upload_config_settings(seatrac, settings, config_path);
+                    // Change beacon id
+                    std::cout << "Current Beacon Id: " << (int)settings.xcvrBeaconId << std::endl
+                            << "Change Beacon Id (y/n)? ";
+                    if(yn_answer()) {
+                        int bid;
+                        while(true) {
+                            std::cout << "Enter New Beacon Id (integer between 1 and 15 inclusive): ";
+                            if(scanf("%d", &bid) && bid<=15 && bid>=1) break;
+                            skip_cin_line();
+                            std::cout << "Invalid Beacon Id. Id should be an integer between 1 and 15 inclusive." << std::endl;
+                        }
+                        skip_cin_line();
+                        std::cout << "Setting Beacon Id to " << bid << "... ";
+                        settings.xcvrBeaconId = (BID_E) bid;
+                        command::settings_set(seatrac, settings);
+                        std::cout << "done" << std::endl << std::endl;
+                    }
+                    break;
+                }
+                if(ans == 's') {
+                    skip_cin_line();
+                    std::cout << "skipping to calibration" << std::endl;
+                    break;
+                }
+            }
+            skip_cin_line();
+            std::cout << "Invalid response. Please enter 'm', 'c', or 's': ";
+        }
 
         std::cout << "Calibrate Magnetometer (y/n)? ";
         if(yn_answer()) {
