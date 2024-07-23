@@ -69,7 +69,7 @@ namespace narval { namespace seatrac { namespace calibration {
     //Function walks user through a terminal calibration procedure
     //Ensure that printCalFeedback is being called in SeatracDriver::on_message
     inline bool calibrateAccelerometer(SeatracDriver& seatrac, std::ostream& out, std::istream& in, bool saveToEEPROM = false) {
-        
+        STATUS_BITS_E origional_status_bits = command::status_config_get(seatrac).statusOutput;
         command::status_config_set(seatrac, (STATUS_BITS_E)0x0);
         out << "---\tSeatrac Accelerometer Calibration\t---" << std::endl
             << "Press enter to begin. Once the X Y and Z limits are found, press enter again to finish and apply changes." << std::endl;        
@@ -95,10 +95,12 @@ namespace narval { namespace seatrac { namespace calibration {
             else {
                 out << "Error saving Calibration Values to RAM. Seatrac Response Status: " 
                 << calculateCalResp.status << std::endl;
+                command::status_config_set(seatrac, origional_status_bits);
                 return false;
             }
         } else {
             out << "Error saving Calibration Values to RAM: time out reached" << std::endl;
+            command::status_config_set(seatrac, origional_status_bits);
             return false;
         }
 
@@ -111,15 +113,18 @@ namespace narval { namespace seatrac { namespace calibration {
                 else {
                     out << "Error saving Calibration Values to EEPROM. Seatrac Response Status: " 
                         << saveSettingsResp.statusCode << std::endl;
+                    command::status_config_set(seatrac, origional_status_bits);
                     return false;
                 }
             } else {
                 out << "Error saving Calibration Values: time out reached" << std::endl;
+                command::status_config_set(seatrac, origional_status_bits);
                 return false;
             }
         }
 
         out << "Accelerometer calibration complete" << std::endl;
+        command::status_config_set(seatrac, origional_status_bits);
         return true;
     }
 
@@ -127,6 +132,7 @@ namespace narval { namespace seatrac { namespace calibration {
     //Function walks user through a terminal calibration procedure
     //Ensure that printCalFeedback is being called in SeatracDriver::on_message
     inline bool calibrateMagnetometer(SeatracDriver& seatrac, std::ostream& out, std::istream& in, bool saveToEEPROM = false) {
+        STATUS_BITS_E origional_status_bits = command::status_config_get(seatrac).statusOutput;
         command::status_config_set(seatrac, (STATUS_BITS_E)0x0);
         out << "---\tSeatrac Magnetometer Calibration\t---" << std::endl
             << "Press enter to begin. Once the progress has reached 100%, press enter again to finish and apply changes." << std::endl;        
@@ -152,10 +158,12 @@ namespace narval { namespace seatrac { namespace calibration {
             else {
                 out << "Error saving Calibration Values to RAM. Seatrac Response Status: " 
                     << calculateCalResp.status << std::endl;
+                command::status_config_set(seatrac, origional_status_bits);
                 return false;
             }
         } else {
             out << "Error saving Calibration Values to RAM: time out reached" << std::endl;
+            command::status_config_set(seatrac, origional_status_bits);
             return false;
         }
 
@@ -168,15 +176,18 @@ namespace narval { namespace seatrac { namespace calibration {
                 else {
                     out << "Error saving Calibration Values to EEPROM. Seatrac Response Status: " 
                     << saveSettingsResp.statusCode << std::endl;
+                    command::status_config_set(seatrac, origional_status_bits);
                     return false;
                 }
             } else {
                 out << "Error saving Calibration Values to EEPROM: time out reached" << std::endl;
+                command::status_config_set(seatrac, origional_status_bits);
                 return false;
             }
         }
 
         out << "Magnetometer calibration complete." << std::endl;
+        command::status_config_set(seatrac, origional_status_bits);
         return true;
     }
 

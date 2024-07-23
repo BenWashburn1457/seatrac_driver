@@ -251,17 +251,13 @@ void manual_set_settings(MyDriver& seatrac, SETTINGS_T& settings) {
             std::cout << "done" << std::endl << std::endl;   
         }
 
-        // Other settings (ones that shouldn't change but good to check to make sure they're not corrupted)
-        // settings.status_output = ENVIRONMENT | ATTITUDE;
-        // settings.xcvrFlags     = (XCVR_FLAGS_E)(USBL_USE_AHRS | XCVR_POSFLT_ENABLE);
-        // settings.envFlags      = (ENV_FLAGS_E)(AUTO_VOS | AUTO_PRESSURE_OFS);
-        // settings.ahrsFlags     = AUTO_CAL_MAG;
-
-        // settings.xcvrRangeTmo  = 1000;
-        // settings.xcvrRespTime  = 10;
-        // settings.xcvrPosfltVel = 3;
-        // settings.xcvrPosfltAng = 10;
-        // settings.xcvrPosfltTmo = 60;
+        //TODO: these settings can be easy to mess up and really shouldn't change at all
+        // Not sure if I should give the user control over this section or not.         
+        settings.xcvrRangeTmo  = 1000;
+        settings.xcvrRespTime  = 10;
+        settings.xcvrPosfltVel = 3;
+        settings.xcvrPosfltAng = 10;
+        settings.xcvrPosfltTmo = 60;
 
         command::settings_set(seatrac, settings);
         std::cout << "Manual Settings upload complete." << std::endl << std::endl; 
