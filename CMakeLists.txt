@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
-project(seatrac_driver VERSION 0.1)
+project(seatrac_driver VERSION 1.1)
 
 # find_package(rtac_asio REQUIRED)
-# find_package(rtac_asio QUIET)
+find_package(rtac_asio QUIET)
 if(NOT TARGET rtac_asio)
     include(FetchContent)
     FetchContent_Declare(rtac_asio
@@ -22,6 +22,7 @@ list(APPEND seatrac_driver_headers
     include/seatrac_driver/DataWaiter.h
 
     include/seatrac_driver/commands.h
+    include/seatrac_driver/Calibration.h
     include/seatrac_driver/messages/MessageBase.h
     include/seatrac_driver/messages/Messages.h
 
@@ -47,6 +48,16 @@ list(APPEND seatrac_driver_headers
     include/seatrac_driver/messages/DataSend.h
     include/seatrac_driver/messages/DataReceive.h
     include/seatrac_driver/messages/DataError.h
+
+    include/seatrac_driver/messages/EchoSend.h
+    include/seatrac_driver/messages/EchoReq.h
+    include/seatrac_driver/messages/EchoResp.h
+    include/seatrac_driver/messages/EchoError.h
+
+    include/seatrac_driver/messages/NavQuerySend.h
+    include/seatrac_driver/messages/NavQueryReq.h
+    include/seatrac_driver/messages/NavQueryResp.h
+    include/seatrac_driver/messages/NavError.h
 
     include/seatrac_driver/messages/XcvrAnalyse.h
     include/seatrac_driver/messages/XcvrStatus.h

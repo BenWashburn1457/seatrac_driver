@@ -1,2 +1,2 @@
 
-sudo ./build/data_sender_example $1
+sudo ./build/data_example $1

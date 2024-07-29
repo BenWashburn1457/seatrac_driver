@@ -10,17 +10,14 @@ find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(seatrac_interfaces REQUIRED)
 
-#find_package(seatrac_driver REQUIRED)
+find_package(seatrac_driver QUIET)
 if(NOT TARGET seatrac_driver)
-    find_package(seatrac_driver QUIET)
-    if(NOT TARGET seatrac_driver)
-        include(FetchContent)
-        FetchContent_Declare(seatrac_driver
-            GIT_REPOSITORY https://Clayton314@bitbucket.org/frostlab/seatrac_driver.git
-            GIT_TAG        main
-        )
-        FetchContent_MakeAvailable(seatrac_driver)
-    endif()
+    include(FetchContent)
+    FetchContent_Declare(seatrac_driver
+        GIT_REPOSITORY https://Clayton314@bitbucket.org/frostlab/seatrac_driver.git
+        GIT_TAG        main
+    )
+    FetchContent_MakeAvailable(seatrac_driver)
 endif()
 
 add_executable(modem src/modem_ros_node.cpp)
