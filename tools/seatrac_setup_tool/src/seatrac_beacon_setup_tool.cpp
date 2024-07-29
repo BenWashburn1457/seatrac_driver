@@ -104,7 +104,7 @@ void upload_config_settings(SeatracDriver& seatrac, SETTINGS_T& settings, std::s
         | XCVR_USBL_MSGS     * seatrac_config["report_transceiver_usbl_msgs"].value_or(false)
         | XCVR_FIX_MSGS      * seatrac_config["report_transceiver_fix_msgs"].value_or(false)
         | XCVR_DIAG_MSGS     * seatrac_config["report_transceiver_msg_diagnostics"].value_or(false)
-        | (msgctrl << 3) //XCVR_TXMSGCTRL_E takes up the 3rd and 4th bits of 
+        | (msgctrl << 3) //XCVR_TXMSGCTRL_E takes up the 3rd and 4th bits of xcvrFlags
     );
 
     settings.xcvrBeaconId = (BID_E)seatrac_config["beacon_id"].value_or(1);
@@ -266,11 +266,6 @@ void manual_set_settings(MyDriver& seatrac, SETTINGS_T& settings) {
 int main(int argc, char *argv[]) {
 
     std::cout << "=== Seatrac Beacon Setup Tool ==="    << std::endl << std::endl;
-            //   << "Procedure:"                           << std::endl
-            //   << " - Connect to Beacon"                 << std::endl
-            //   << " - Set Beacon Id"                     << std::endl
-            //   << " - Set Beacon Settings"               << std::endl
-            //   << " - Calibrate Magnetometer"            << std::endl;
 
     bool cont = true;
     while(cont) {
@@ -371,10 +366,4 @@ int main(int argc, char *argv[]) {
         cont = yn_answer();
     }
 }
-
-
-        // std::cout << "Beacon Settings:";
-        // std::cout << "Change Beacon Settings (y/n): ";
-        // std::cout << "Upload from config file (u) or enter manually (m)? ";
-        // std::cout << "Path to Config File (blank for default './seatrac_logger_config.toml'): ";
 
