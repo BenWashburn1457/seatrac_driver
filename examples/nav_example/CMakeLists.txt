@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.6)
-project(seatrac_simple_naver_example VERSION 0.1)
+project(seatrac_nav_example VERSION 0.1)
 
 find_package(seatrac_driver QUIET)
 if(NOT TARGET seatrac_driver)
@@ -11,7 +11,5 @@ if(NOT TARGET seatrac_driver)
     FetchContent_MakeAvailable(seatrac_driver)
 endif()
 
-add_executable(nav_example
-    src/nav_example.cpp
-)
+add_executable(nav_example src/nav_example.cpp)
 target_link_libraries(nav_example PRIVATE seatrac_driver)

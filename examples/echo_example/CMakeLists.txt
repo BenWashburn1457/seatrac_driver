@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.6)
-project(seatrac_simple_pinger_example VERSION 0.1)
+project(seatrac_echo_example VERSION 0.1)
 
 find_package(seatrac_driver QUIET)
 if(NOT TARGET seatrac_driver)
@@ -12,7 +12,5 @@ if(NOT TARGET seatrac_driver)
 endif()
 
 
-add_executable(echo_example
-    src/echo_example.cpp
-)
+add_executable(echo_example src/echo_example.cpp)
 target_link_libraries(echo_example PRIVATE seatrac_driver)
