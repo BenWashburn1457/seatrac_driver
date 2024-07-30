@@ -1,18 +1,40 @@
 # FRoSt seatrac_driver
 
-This is a c++ driver for the Blueprint Subsea Seatrac USBL receiver.
+This is a c++ driver for the Blueprint Subsea Seatrac USBL beacon.
 
-It is a fork of the seatrac_driver written by Pierre Narvor:
+It is a significantly modified fork of the seatrac_driver written by Pierre Narvor:
 https://gitlab.ensta-bretagne.fr/narvorpi/seatrac_driver.
 
-If this is your first time using this driver, start with the
-example code found in `seatrac_driver/examples`. Instructions for using the
-examples are under the Examples heading in the README.
+If this is your first time using the driver, there are four c++ examples you can try 
+to test out the beacons acoustic transmission capabilities.
+
+This repository also includes a ros2 node built ontop of the c++ driver. If you don't
+plan on using the driver at the c++ level, you can skip to the ROS2 section of
+the readme.
 
 ## Installation
 
-This is a standard cmake package. It is to be installed in a location pointed by
-the CMAKE_PREFIX_PATH environment variable.
+This is a standard cmake package. It can be installed manually and found by
+your project using `CMAKE_PREFIX_PATH`, or installed automatically in your cmake
+file using `FetchContent`.
+
+### Automatic Installation using CMake
+Using FetchContent in your CMake, you can automatically download and install
+seatrac_driver from its git repository. Simply include
+```
+include(FetchContent)
+FetchContent_Declare(seatrac_driver
+	GIT_REPOSITORY https://Clayton314@bitbucket.org/frostlab/seatrac_driver.git
+	GIT_TAG        main
+)
+FetchContent_MakeAvailable(seatrac_driver)
+```
+in your CMake file and you're good to go. 
+
+### Manual Installation
+While using FetchContent is the simplest and least likely to encounter errors,
+you also have the option to install the driver manually.
+To install manually, run the following set of bash commands:
 
 ```
 git clone https://Clayton314@bitbucket.org/frostlab/seatrac_driver.git
@@ -37,100 +59,48 @@ If not, be sure to add it (for example with the following line :)
 echo "export CMAKE_PREFIX_PATH=<your_install_location_full_path>:\$CMAKE_PREFIX_PATH" >> .bashrc
 ```
 
-Alternatively, if you use `/lib/seatrac_driver` or `/usr/lib/seatrac_driver` as
-<your_install_location>, cmake can find the driver without CMAKE_PREFIX_PATH.
-
-### Dependency Issues
-The driver has two principle dependencies:
-
-* rtac_asio: while the driver is setup to find and download the library rtac_asio automatically
-  sometimes there are errors. If cmake cannot find librtac_asio.so, you may need to install
-  rtac_asio separately. To install, follow the instructions at https://github.com/pnarvor/rtac_asio.
-  After installing, reinstall the seatrac driver.
-* Boost: if you do not have boost on your system, you can install it with
-  ```sudo apt-get install libboost-all-dev```
-
-## Using in your C++ project
+Then, add `find_package(seatrac_driver REQUIRED)` to your CMake.
 
 ### CMake
-
-To include this driver into your C++ project, link with it as you would with any
-CMake package :
-
-In your CMakeLists.txt :
-
+This is an example of what the CMake file for your project might look like.
+This CMake first tries to find a local installation. If that doesn't work,
+it downloads seatrac_driver from the git repository.
 ```
-find_package(seatrac_driver REQUIRED)
+cmake_minimum_required(VERSION 3.6)
+project(your_project VERSION 0.1)
 
-add_executable(your_executable ...)
-target_link_libraries(your_executable PRIVATE
-	seatrac_driver
-)
+find_package(seatrac_driver QUIET)
+if(NOT TARGET seatrac_driver)
+    include(FetchContent)
+    FetchContent_Declare(seatrac_driver
+        GIT_REPOSITORY https://Clayton314@bitbucket.org/frostlab/seatrac_driver.git
+        GIT_TAG        main
+    )
+    FetchContent_MakeAvailable(seatrac_driver)
+endif()
+
+add_executable(your_execuatable ...)
+target_link_libraries(your_executable PRIVATE seatrac_driver)
 ```
 
-And that's it ! (No "include_directories" or ${seatrac_driver_LIBRARIES}
-shenanigans. Please use modern CMake.)
+### Installation Troubleshooting
+Some common issues that may occur during installation
 
-### In your code
-
-You can receive data from the driver by subclassing the "SeatracDriver" class
-and reimplementing the "on_message" virtual method.
-
-
-Your implementation should look like this :
-
-```
-#include <seatrac_driver/SeatracDriver.h>
-#include <seatrac_driver/messages/Messages.h>
-
-using namespace narval::seatrac;
-
-class MySeatracDriver : public SeatracDriver
-{
-	public:
-
-	MySeatracDriver(const IoServicePtr& ioService,
-                	const std::string& serialDevice = "/dev/ttyUSB0") :
-    	SeatracDriver(ioService, serialDevice)
-	{}
-
-	protected:
-
-	virtual void on_message(CID_E msgId, const std::vector<uint8_t>& msgData)
-	{
-    	// your message handlers here.
-	}
-};
-```
+* Cannot find Boost: Boost is another dependancy of seatrac_driver. You can install it with
+  ```sudo apt-get install libboost-all-dev```
+* Cannot find librtac_asio.so: rtac_asio is a dependancy of seatrac_driver. 
+	The CMake file for seatrac_driver first looks for a local installation, 
+	and then pulls it from the git repository if it can't find it locally.
+	You can install it from https://github.com/pnarvor/rtac_asio.
+	
 
 ## Examples
 
-This driver comes with 4 different examples detailing different features of the
-driver. For new users, these examples are the best place to start.
+This driver includes c++ examples for each of the 4 acoustic message protocols:
+PING, DAT, ECHO, and NAV. For new users, these examples are a good place to start.
 
-### List of examples:
-* ping_example:
-	Demonstrates the PING protocol. Sends a ping request to a nearby beacon with id 15.
-	Once it receives a response, it prints out the data and sends another request to
-	the same beacon. Terminates once the enter key is pressed.
-* data_send_example:
-	Run data_send_example in two terminals connected to each beacon.
-	Demonstrates the DAT protocol. You will be prompted to enter a string. It will
-	then send the string (up to 31 chars) to the other beacon, which will print
-	the data received in its own terminal. Press enter without typing a message
-	to close the program.
-* calibration_example:
-	Walks the user through a calibration procedure for either the magnetometer or accelerometer.
-	You can run either a full calibration - which permanently overrides pre-existing calibration values -
-	or a dry run - which only saves the values to RAM, leaving permanent memory untouched.
-	To learn more about how to calibrate the beacon, read in the
-	[Seatrac Beacon User Guide, page 19](https://www.blueprintsubsea.com/downloads/seatrac/UM-140-P00918-03.pdf#page=19).
-* ros2_example:
-	A ros2 node built for the humble distribution that publishes ping or data messages
-	received by the beacon and subscribes to ping or data messages to send to other
-	beacons.
 
-### To run ping_example, data_send_example, or calibration_example:
+### To run each example:
 
 1. Connect 2 beacons to your computer and place them together in water.
 2. Navigate to the example's folder `seatrac_driver/examples/<example_name>`
@@ -141,22 +111,31 @@ driver. For new users, these examples are the best place to start.
 	make
 	cd ..
 	```
-	If you have installed the seatrac_driver and it is in /lib, /usr/lib, or
-	CMAKE_PREFIX_PATH, the example should use your installation. But you do
-	not need to install seatrac_driver beforehand to build an example. Each
-	example is setup to find and download the driver from this git
+	Each example is setup to find and download the driver from this git
 	repository (using FetchContent) if it cannot find an existing
 	seatrac_driver on your computer.
 4. Run the example: `sudo ./build/<example_name> <serial_port>`
 	The executable name is the same as the example folder name.
 	It takes one argument - the serial port that the seatrac modem is
 	connected too (for example `/dev/ttyUSB0`).
-    
-### To run ros2_example:
+	
+## Using with c++
+	
+The c++ interface 
+	
+## Using with ROS2
 
-1. In a terminal with admin permissions, navigate to `seatrac_driver/examples/ros2_example`
+For applications using ros, the ros2 seatrac node provides a high level
+interface with the beacon.
+
+### To run ros2_node:
+
+1. Navigate to `seatrac_driver/tools/ros2_seatrac`
 2. Build the example and source local setup: `colcon build && source ./install/setup.bash`
 3. Run: `ros2 run seatrac modem`
+
+## Encoding Seatrac Messages
+
 
 ## Interfacing with the seatrac beacon
 The seatrac_driver interfaces with the beacon through a serial connection. Messages are sent both ways
