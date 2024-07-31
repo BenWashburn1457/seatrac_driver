@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(seatrac_driver VERSION 1.1)
 
 # find_package(rtac_asio REQUIRED)
-find_package(rtac_asio QUIET)
+# find_package(rtac_asio QUIET)
 if(NOT TARGET rtac_asio)
     include(FetchContent)
     FetchContent_Declare(rtac_asio
