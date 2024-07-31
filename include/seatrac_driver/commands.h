@@ -220,6 +220,27 @@ inline messages::EchoSend echo_send(SeatracDriver& seatrac,
 
     return response;
 }
+inline messages::NavQuerySend nav_query_send(SeatracDriver& seatrac,
+    BID_E      target,
+    NAV_QUERY_E queryFlags,
+    uint8_t    data_length,
+    uint8_t*   data,
+    int64_t    timeout=1000)
+{
+    messages::NavQuerySend response;
+    messages::NavQuerySend::Request request;
+
+    request.destId     = target;
+    request.queryFlags = queryFlags;
+    request.packetLen  = std::min(data_length, (uint8_t)sizeof(request.packetData));
+    std::memcpy(request.packetData, data, request.packetLen);
+
+    if(!seatrac.send_request(sizeof(request), (const uint8_t*)&request, &response, timeout)) {
+        throw TimeoutReached();
+    }
+
+    return response;
+}
 
 inline messages::XcvrAnalyse background_noise(SeatracDriver& seatrac, int64_t timeout=1000)
 {

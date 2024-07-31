@@ -8,7 +8,7 @@ https://gitlab.ensta-bretagne.fr/narvorpi/seatrac_driver.
 If this is your first time using the driver, there are four c++ examples you can try 
 to test out the beacons acoustic transmission capabilities.
 
-This repository also includes a ros2 node built ontop of the c++ driver. If you don't
+This repository also includes a ros2 node built on top of the c++ driver. If you don't
 plan on using the driver at the c++ level, you can skip to the ROS2 section of
 the readme.
 
@@ -29,7 +29,7 @@ FetchContent_Declare(seatrac_driver
 )
 FetchContent_MakeAvailable(seatrac_driver)
 ```
-in your CMake file and you're good to go. 
+in your CMake file and you're good to go.
 
 ### Manual Installation
 While using FetchContent is the simplest and least likely to encounter errors,
@@ -86,9 +86,9 @@ target_link_libraries(your_executable PRIVATE seatrac_driver)
 ### Installation Troubleshooting
 Some common issues that may occur during installation
 
-* Cannot find Boost: Boost is another dependancy of seatrac_driver. You can install it with
+* Cannot find Boost: Boost is another dependency of seatrac_driver. You can install it with
   ```sudo apt-get install libboost-all-dev```
-* Cannot find librtac_asio.so: rtac_asio is a dependancy of seatrac_driver. 
+* Cannot find librtac_asio.so: rtac_asio is a dependency of seatrac_driver. 
 	The CMake file for seatrac_driver first looks for a local installation, 
 	and then pulls it from the git repository if it can't find it locally.
 	You can install it from https://github.com/pnarvor/rtac_asio.
@@ -98,7 +98,6 @@ Some common issues that may occur during installation
 
 This driver includes c++ examples for each of the 4 acoustic message protocols:
 PING, DAT, ECHO, and NAV. For new users, these examples are a good place to start.
-
 
 ### To run each example:
 
@@ -119,22 +118,221 @@ PING, DAT, ECHO, and NAV. For new users, these examples are a good place to star
 	It takes one argument - the serial port that the seatrac modem is
 	connected too (for example `/dev/ttyUSB0`).
 	
+
+
 ## Using with c++
 	
-The c++ interface 
-	
+You can interface with the beacon by subclassing `SeatracDriver` class from `SeatracDriver.h`,
+and initializing it with the serial port connection as an argument:
+
+```
+#include <seatrac_driver/Seatrac_Driver.h>
+using namespace narval::seatrac;
+
+class MyDriver : public SeatracDriver {
+}
+
+int main() {
+	std::string serial_port = "/dev/ttyUSB0";
+	MyDriver seatrac(serial_port); //initialize your driver
+	getchar(); //wait for user input before terminating the program
+	return 0;
+}
+```
+
+### Reading messages from the beacon (c++)
+
+All messages received from the beacon will result in a call to the SeatracDriver::on_message 
+method. The first argument of on_message is the message id, a uint8 that tells you what
+type of message you received. msgId is defined by the CID_E enum from SeatracEnums.h.
+You can access the contents of the message by copying its data into a message struct. 
+Message structs can be found in the include/seatrac_driver/messages folder. You can only
+fill a message struct of the same type as the msgId. Ideally, this can be ensured with
+a switch statement.
+
+```
+class MyDriver : public SeatracDriver {
+	void on_message(CID_E msgId, const std::vector<uint8_t>& data) {
+		if(msgId == CID_PING_RESP) { 				//assigning a PingResp to data when msgId != CID_PING_RESP will throw an error
+				messages::PingResp response;        //struct that contains response fields
+				response = data;                    //operator overload fills in response struct with correct data
+				std::cout << response << std::endl; //operator overload prints out response data
+		}
+	}
+}
+```
+
+### Sending messages too the beacon (c++)
+
+You can send a message to the beacon using the SeatracDriver::send method.
+SeatracDriver::send takes a byte array pointer and number of bytes as arguments.
+First, create a class of type <MessageType>::Request. Specify the request struct
+fields, then send it by recasting the struct as a byte array pointer. When sending
+a message, you do not have to specify the CID_E message id, since the Request 
+struct has already defined it for you.
+
+```
+class MyDriver : public SeatracDriver {
+	void ping_beacon_15() {
+		messages::PingSend::Request request;	//the message id for PingSend is CID_PING_SEND
+		request.target = BEACON_ID_15;			//BID_E enum type. beacon id.
+		request.pingType = MSG_REQU;			//AMSGTYPE_E enum type. requests a usbl response from beacon 15
+		this->send(sizeof(request), (const uint8_t*)&request);
+	}
+}
+```
+
+### Other useful features
+
+* commands.h - Provides a set of higher level functions to quickly write code
+	that works with the beacon. It has functions that change settings, change
+	the beacon id, or send acoustic messages.
+* SeatracDriver::send_request and SeatracDriver::wait_for_message - send_request sends a 
+	request to the beacon and blocks until the beacon returns a response message. It
+	dumps the returned data in a response structure pointer argument. wait_for_data
+	blocks until the beacon returns a message with the correct CID_E. It then fills
+	the response structure with the data received.
+
+	```
+	SeatracDriver seatrac(serial_port);
+	messages::PingSend response;
+	messages::PingSend::Request request;
+	request.target = BEACON_ID_15;
+	request.pingType = MSG_REQU;
+	seatrac.send_request(sizeof(request), (const uint8_t*)&request, &response);
+	messages::PingResp ping_resp;
+	seatrac.wait_for_data(CID_PING_RESP, &ping_resp);
+	```
+
+
+
 ## Using with ROS2
 
-For applications using ros, the ros2 seatrac node provides a high level
-interface with the beacon.
+For applications using ros, the ros2 seatrac node provides a high level interface 
+with the beacon. It includes two interfaces: ModemSend and ModemRec. 
+ModemSend is used to instruct the beacon to send acoustic messages.
+ModemRec is used to get information from the beacon. 
 
-### To run ros2_node:
+The ros2 node is designed mainly to send and interpret acoustic transmissions. It does 
+not support changing settings, setting beacon id, calibration, or diagnostics. These 
+functions can be achieved using the c++ interface. A seatrac_setup_tool has also been
+provided with a command line interface that lets you quickly setup any beacon.
+
+### To run ROS2:
 
 1. Navigate to `seatrac_driver/tools/ros2_seatrac`
 2. Build the example and source local setup: `colcon build && source ./install/setup.bash`
 3. Run: `ros2 run seatrac modem`
 
-## Encoding Seatrac Messages
+### Reading messages from the beacon (ros2)
+
+In a separate node, simply subscribe to the ModemRec interface. ModemRec has many
+fields, most of which are only used for certain message types. The field msg_id, a uint8 
+representing the message CID_E, indicates what type of message was sent and hence what 
+other fields are populated by that message. While the seatrac ros node publishes a 
+ModemRec for every message received from the beacon, it may not include all the 
+information the original message contained. However, it does include all the fields
+necessary for acoustic transmissions, USBL data, and error messages. 
+
+Review [ModemRec.msg here](https://bitbucket.org/frostlab/seatrac_driver/src/main/tools/ros2_seatrac/seatrac_interfaces/msg/ModemRec.msg)
+
+### Sending acoustic transmission commands (ros2)
+
+ModemSend allows you to send commands to the beacon, but only commands that instruct 
+the beacon to transmit an acoustic message. The field msg_id is the CID_E of the message
+and can only take 4 values: CID_PING_SEND, CID_DAT_SEND, CID_ECHO_SEND, or CID_NAV_QUERY_SEND.
+
+Review [ModemSend.msg here](https://bitbucket.org/frostlab/seatrac_driver/src/main/tools/ros2_seatrac/seatrac_interfaces/msg/ModemSend.msg)
+
+## Seatrac Messages
+
+TODO
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ## Interfacing with the seatrac beacon
