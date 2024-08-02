@@ -22,7 +22,7 @@ file using `FetchContent`.
 Using FetchContent in your CMake, you can automatically download and install
 seatrac_driver from its git repository. Simply include
 
-```
+```cmake
 include(FetchContent)
 FetchContent_Declare(seatrac_driver
 	GIT_REPOSITORY https://Clayton314@bitbucket.org/frostlab/seatrac_driver.git
@@ -38,7 +38,7 @@ While using FetchContent is the simplest and least likely to encounter errors,
 you also have the option to install the driver manually.
 To install manually, run the following set of bash commands:
 
-```
+```bash
 git clone https://Clayton314@bitbucket.org/frostlab/seatrac_driver.git
 
 mkdir build && cd build
@@ -51,13 +51,13 @@ make -j4 install
 Make sure <your_install_location> is in the CMAKE_PREFIX_PATH environment
 variable.
 
-```
+```bash
 echo $CMAKE_PREFIX_PATH
 ```
 
 If not, be sure to add it (for example with the following line :)
 
-```
+```bash
 echo "export CMAKE_PREFIX_PATH=<your_install_location_full_path>:\$CMAKE_PREFIX_PATH" >> .bashrc
 ```
 
@@ -68,7 +68,7 @@ This is an example of what the CMake file for your project might look like.
 This CMake first tries to find a local installation. If that doesn't work,
 it downloads seatrac_driver from the git repository.
 
-```
+```cmake
 cmake_minimum_required(VERSION 3.6)
 project(your_project VERSION 0.1)
 
@@ -108,7 +108,7 @@ PING, DAT, ECHO, and NAV. For new users, these examples are a good place to star
 1. Connect 2 beacons to your computer and place them together in water.
 2. Navigate to the example's folder `seatrac_driver/examples/<example_name>`
 3. Build the example:
-	```
+	```bash
 	mkdir build && cd build
 	cmake ..
 	make
@@ -129,7 +129,7 @@ PING, DAT, ECHO, and NAV. For new users, these examples are a good place to star
 You can interface with the beacon by subclassing `SeatracDriver` class from `SeatracDriver.h`,
 and initializing it with the serial port connection as an argument:
 
-```
+```c++
 #include <seatrac_driver/Seatrac_Driver.h>
 using namespace narval::seatrac;
 
@@ -154,7 +154,7 @@ Message structs can be found in the include/seatrac_driver/messages folder. You 
 fill a message struct of the same type as the msgId. Ideally, this can be ensured with
 a switch statement.
 
-```
+```c++
 class MyDriver : public SeatracDriver {
 	void on_message(CID_E msgId, const std::vector<uint8_t>& data) {
     	if(msgId == CID_PING_RESP) {             	//assigning a PingResp to data when msgId != CID_PING_RESP will throw an error
@@ -175,7 +175,7 @@ fields, then send it by recasting the struct as a byte array pointer. When sendi
 a message, you do not have to specify the CID_E message id, since the Request
 struct has already defined it for you.
 
-```
+```c++
 class MyDriver : public SeatracDriver {
 	void ping_beacon_15() {
     	messages::PingSend::Request request;	//the message id for PingSend is CID_PING_SEND
@@ -197,7 +197,7 @@ class MyDriver : public SeatracDriver {
 	blocks until the beacon returns a message with the correct CID_E. It then fills
 	the response structure with the data received.
 
-	```
+	```c++
 	SeatracDriver seatrac(serial_port);
 	messages::PingSend response;
 	messages::PingSend::Request request;
