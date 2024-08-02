@@ -15,7 +15,7 @@ def generate_launch_description():
             parameters=[{'target_id': 15}]
         ),
         launch.actions.ExecuteProcess(
-            cmd=['ros2', 'topic', 'echo', '/modem_send'],
+            cmd=['ros2', 'topic', 'echo', '/modem_rec'],
             output='screen'
         ),
     ])

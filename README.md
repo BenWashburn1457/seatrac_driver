@@ -213,23 +213,32 @@ class MyDriver : public SeatracDriver {
 ## Using with ROS2
 
 For applications using ros, the ros2 seatrac node provides a high level interface
-with the beacon. It includes two interfaces: ModemSend and ModemRec.
-ModemSend is used to instruct the beacon to send acoustic messages.
-ModemRec is used to get information from the beacon.
+with the beacon. 
 
-The ros2 node is designed mainly to send and interpret acoustic transmissions. It does
-not support changing settings, setting beacon id, calibration, or diagnostics. These
-functions can be achieved using the c++ interface.
+the ros2_seatrac_ws workspace contains 3 packages:
+* seatrac - a package containing a node to communicate with the seatrac modem
+* py_pinger - a package with a node that sends pings using the seatrac node
+* seatrac_interfaces - A package with two interfaces: ModemSend and ModemRec.
+	* ModemSend is used to instruct the beacon to send acoustic messages.
+	* ModemRec is used to get information from the beacon.
+
+The ros2 seatrac node is designed mainly to send and interpret acoustic transmissions. 
+It does not support changing settings, setting beacon id, calibration, or diagnostics. 
+These functions can be achieved using the c++ interface.
 
 #### To run ROS2:
 
-1. Navigate to `seatrac_driver/tools/ros2_seatrac`
-2. Build the example and source local setup: `colcon build && source ./install/setup.bash`
-3. Run: `ros2 run seatrac modem`
+1. Source your local ros2 distibution `source /opt/ros/<distro>/setup.bash`.
+	The ros disto this workspace was developed on is Humble.
+1. Navigate to `seatrac_driver/tools/ros2_seatrac_ws`
+2. Build the workspace and source local setup: `colcon build && source ./install/setup.bash`
+3. Launch: `ros2 launch launch.py`. This launches the seatrac and python pinger nodes,
+	and executes 'ros2 topic echo /modem_rec'. To run the seatrac node alone, execute
+	`ros2 run seatrac modem`.
 
 #### Reading messages from the beacon (ros2)
 
-In a separate node, simply subscribe to the ModemRec interface. ModemRec has many
+Run seatrac modem and subscribe to the ModemRec interface. ModemRec has many
 fields, most of which are only used for certain message types. The field msg_id, a uint8
 representing the message CID_E, indicates what type of message was sent and hence what
 other fields are populated by that message. While the seatrac ros node publishes a
