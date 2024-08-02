@@ -1,4 +1,4 @@
-# FRoSt seatrac_driver
+# Seatrac x150/x110 Driver
 
 This is a c++ driver for the Blueprint Subsea Seatrac x100 series of USBL beacons.
 

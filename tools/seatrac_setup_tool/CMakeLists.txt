@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.6)
-project(seatrac_simple_pinger_example VERSION 0.1)
+project(seatrac_setup_tool VERSION 0.1)
 
 find_package(seatrac_driver QUIET)
 if(NOT TARGET seatrac_driver)
