@@ -1,2 +1,2 @@
 
-sudo ./build/ping_example $1
+./build/ping_example $1

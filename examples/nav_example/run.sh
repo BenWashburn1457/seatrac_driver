@@ -1,2 +1,2 @@
 
-sudo ./build/nav_example $1
+./build/nav_example $1

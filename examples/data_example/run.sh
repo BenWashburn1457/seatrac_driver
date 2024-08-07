@@ -1,2 +1,2 @@
 
-sudo ./build/data_example $1
+./build/data_example $1

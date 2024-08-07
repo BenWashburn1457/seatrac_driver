@@ -1,2 +1,2 @@
 
-sudo ./build/echo_example $1
+./build/echo_example $1
