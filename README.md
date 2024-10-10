@@ -216,6 +216,7 @@ For applications using ros, the ros2 seatrac node provides a high level interfac
 with the beacon. 
 
 the ros2_seatrac_ws workspace contains 3 packages:
+
 * seatrac - a package containing a node to communicate with the seatrac modem
 * py_pinger - a package with a node that sends pings using the seatrac node
 * seatrac_interfaces - A package with two interfaces: ModemSend and ModemRec.
