@@ -12,12 +12,16 @@ find_package(ament_cmake REQUIRED)
 # find_package(<dependency> REQUIRED)
 
 find_package(std_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/ModemRec.msg"
+  "msg/ModemStatus.msg"
+  "msg/ModemCmdUpdate.msg"
   "msg/ModemSend.msg"
   DEPENDENCIES std_msgs
+  DEPENDENCIES nav_msgs
 )
 
 if(BUILD_TESTING)
