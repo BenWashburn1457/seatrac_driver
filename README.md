@@ -219,9 +219,11 @@ the ros2_seatrac_ws workspace contains 3 packages:
 
 * seatrac - a package containing a node to communicate with the seatrac modem
 * py_pinger - a package with a node that sends pings using the seatrac node
-* seatrac_interfaces - A package with two interfaces: ModemSend and ModemRec.
-	* ModemSend is used to instruct the beacon to send acoustic messages.
-	* ModemRec is used to get information from the beacon.
+* seatrac_interfaces - A package with 4 interfaces:
+	* ModemSend   -  instructs the beacon to send acoustic messages.
+	* ModemRec    -  returned when an acoustic signal is received.
+	* ModemStatus -  returned when a status message is received.
+	* ModemCmdUpdate - captures short status and error codes
 
 The ros2 seatrac node is designed mainly to send and interpret acoustic transmissions. 
 It does not support changing settings, setting beacon id, calibration, or diagnostics. 
@@ -239,15 +241,7 @@ These functions can be achieved using the c++ interface.
 
 #### Reading messages from the beacon (ros2)
 
-Run seatrac modem and subscribe to the ModemRec interface. ModemRec has many
-fields, most of which are only used for certain message types. The field msg_id, a uint8
-representing the message CID_E, indicates what type of message was sent and hence what
-other fields are populated by that message. While the seatrac ros node publishes a
-ModemRec for every message received from the beacon, it may not include all the
-information the original message contained. However, it does include all the fields
-necessary for acoustic transmissions, USBL data, and error messages.
-
-Link to ModemRec: [ModemRec.msg](https://bitbucket.org/frostlab/seatrac_driver/src/main/tools/ros2_seatrac/seatrac_interfaces/msg/ModemRec.msg)
+Depending on the information you want, subscribe to ModemRec, ModemStatus, or ModemCmdUpdate.
 
 #### Sending acoustic transmission commands (ros2)
 
