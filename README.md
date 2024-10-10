@@ -117,7 +117,7 @@ PING, DAT, ECHO, and NAV. For new users, these examples are a good place to star
 	Each example is setup to find and download the driver from this git
 	repository (using FetchContent) if it cannot find an existing
 	seatrac_driver on your computer.
-4. Run the example: `sudo ./build/<example_name> <serial_port>`
+4. Run the example: `./build/<example_name> <serial_port>`
 	The executable name is the same as the example folder name.
 	It takes one argument - the serial port that the seatrac modem is
 	connected too (for example `/dev/ttyUSB0`).
