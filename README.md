@@ -1,6 +1,6 @@
-# Seatrac x150/x110 Driver
+# SeaTrac x150/x110 Driver
 
-This is a c++ driver for the Blueprint Subsea Seatrac x100 series of USBL beacons.
+This is a c++ driver for the Blueprint Subsea SeaTrac x100 series of USBL beacons.
 
 It is a fork of the seatrac_driver written by Pierre Narvor:
 https://gitlab.ensta-bretagne.fr/narvorpi/seatrac_driver.
@@ -119,7 +119,7 @@ PING, DAT, ECHO, and NAV. For new users, these examples are a good place to star
 	seatrac_driver on your computer.
 4. Run the example: `./build/<example_name> <serial_port>`
 	The executable name is the same as the example folder name.
-	It takes one argument - the serial port that the seatrac modem is
+	It takes one argument - the serial port that the SeaTrac modem is
 	connected too (for example `/dev/ttyUSB0`).
     
 
@@ -130,7 +130,7 @@ You can interface with the beacon by subclassing `SeatracDriver` class from `Sea
 and initializing it with the serial port connection as an argument:
 
 ```c++
-#include <seatrac_driver/Seatrac_Driver.h>
+#include <seatrac_driver/SeatracDriver.h>
 using namespace narval::seatrac;
 
 class MyDriver : public SeatracDriver {
@@ -241,11 +241,13 @@ These functions can be achieved using the c++ interface.
 
 #### Reading messages from the beacon (ros2)
 
-Depending on the information you want, subscribe to ModemRec, ModemStatus, or ModemCmdUpdate.
+The three ros2 messages published from the seatrac beacon are modem_rec, modem_status, and modem_cmd_update. ModemRec is published anytime the beacon receives an acoustic message and includes directional and ranging information. ModemStatus is published anytime the driver recieves a CID_STATUS update from the beacon. ModemCmdUpdate is published anytime the beacon receives an error message or command status update.
+
+Links: [ModemRec.msg](https://bitbucket.org/frostlab/seatrac_driver/src/main/tools/ros2_seatrac/seatrac_interfaces/msg/ModemRec.msg), [ModemStatus.msg](https://bitbucket.org/frostlab/seatrac_driver/src/main/tools/ros2_seatrac/seatrac_interfaces/msg/ModemStatus.msg), [ModemCmdUpdate.msg](https://bitbucket.org/frostlab/seatrac_driver/src/main/tools/ros2_seatrac/seatrac_interfaces/msg/ModemCmdUpdate.msg)
 
 #### Sending acoustic transmission commands (ros2)
 
-ModemSend allows you to send commands to the beacon, but only commands that instruct
+ModemSend allows you to send commands to the beacon that instruct
 the beacon to transmit an acoustic message. The field msg_id is the CID_E of the message
 and can only take 4 values: CID_PING_SEND, CID_DAT_SEND, CID_ECHO_SEND, or CID_NAV_QUERY_SEND.
 
@@ -253,30 +255,30 @@ Link to ModemSend: [ModemSend.msg](https://bitbucket.org/frostlab/seatrac_driver
 
 
 
-## Seatrac Setup Tool
+## SeaTrac Setup Tool
 
-The Seatrac Setup Tool, located at seatrac_driver/tools/seatrac_setup_tool, is a terminal
+The SeaTrac Setup Tool, located at seatrac_driver/tools/seatrac_setup_tool, is a terminal
 program that helps set the beacon id and remaining settings and calibrate a beacon
 before use. compile and run it the same way you would any of the examples. See
-[Seatrac User Guide pg 18](https://www.blueprintsubsea.com/downloads/seatrac/UM-140-P00918-04.pdf#page=18)
+[SeaTrac User Guide pg 18](https://www.blueprintsubsea.com/downloads/seatrac/UM-140-P00918-04.pdf#page=18)
 for calibration instructions.
 
 
-## Seatrac Message Formats
+## SeaTrac Message Formats
 
 seatrac_driver works by sending messages and receiving messages through a serial line with the beacon.
 Every message has a message id, defined in the CID_E enum. the message id tells you what information
 that message includes.
 
-The format for seatrac messages is defined in the [Seatrac Developer User Guide](https://www.blueprintsubsea.com/downloads/seatrac/UM-140-D00221-07.pdf).
+The format for SeaTrac messages is defined in the [SeaTrac Developer User Guide](https://www.blueprintsubsea.com/downloads/seatrac/UM-140-D00221-07.pdf).
 It defines the [CID_E](https://www.blueprintsubsea.com/downloads/seatrac/UM-140-D00221-07.pdf#page=40)
 enum, along with the remaining contents for each message type.
 
-The following is a light overview of some of the seatrac messages.
+The following is a light overview of some of the SeaTrac messages.
 
 #### Acoustic Protocol Messages
 
-The seatrac beacon has 4 [acoustic protocols](https://www.blueprintsubsea.com/downloads/seatrac/UM-140-D00221-07.pdf#page=17).
+The SeaTrac beacon has 4 [acoustic protocols](https://www.blueprintsubsea.com/downloads/seatrac/UM-140-D00221-07.pdf#page=17).
 All four protocols are capable of sending acoustic signals with usbl data. They differ in how and what data is
 transferred with the message payload.
 
@@ -301,28 +303,26 @@ Enums and Structs used in Acoustic messages:
 * BID_E: The beacon id between 1 and 15. Used to address acoustic messages.
 * NAV_QUERY_T: A bit mask indicating what information to query in a nav message.
 
-#### Beacon Management Messages
-
-Beacon Management messages are used to
+#### Non-Acoustic Messages
 
 * CID_STATUS: This message is output at a regular user defined interval. It contains
 	useful information from the beacon, such as the outputs of its auxiliary sensors
 * CID_SETTINGS_... : used to manage the beacons settings
 * CID_XCVR_... : diagnostic data for the acoustic transceiver independent of acoustic protocols
 
-Enums and Structs used in Beacon Management messages:
+Enums and Structs:
 
 * SETTINGS_T: a struct containing all the settings of the beacon
 * CST_E: Command status code. Indicates whether or not a command completed successfully and identify errors.
 
 #### Where things are in seatrac_driver
 
-* All seatrac messages are defined in the [messages folder](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/messages/)
+* All SeaTrac messages are defined in the [messages folder](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/messages/)
 * All enums (such as CID_E, AMSGTYPE_E, etc) are defined in [SeatracEnums.h](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/SeatracEnums.h)
 * All non-message structures (such as ACOMSG_T or SETTINGS_T) are defined in [SeatracTypes.h](https://bitbucket.org/frostlab/seatrac_driver/src/main/include/seatrac_driver/SeatracTypes.h)
 
 
 
-## Seatrac Support Webpage
+## SeaTrac Support Webpage
 
 https://www.blueprintsubsea.com/seatrac/support
