@@ -18,7 +18,7 @@
 #include "seatrac_interfaces/msg/modem_send.hpp"
 
 
-#define DEFAULT_SERIAL_PORT "/dev/frost/rs232_connector_seatrac"
+#define DEFAULT_SERIAL_PORT "/dev/ttyUSB0"
 
 #define QUEUE_WARN_SIZE 8
 
@@ -37,9 +37,6 @@ using namespace narval::seatrac;
  * with information on acoustic transmissions, modem_status with regular 
  * beacon status updates, and modem_cmd_update with command status codes and 
  * error codes. It broadcasts an acoustic message when it recieves modem_send.
- * 
- * Code copied from 
- * https://bitbucket.org/frostlab/seatrac_driver/src/main/tools/ros2_seatrac_ws/seatrac/src/modem_ros_node.cpp
  * 
  * Subscribes:
  * - modem_send (seatrac_interfaces/msg/ModemSend)
@@ -66,13 +63,12 @@ public:
       100ms, std::bind(&ModemRosNode::refresh_queue, this));
 
     /**
-     * @param vehicle_ID
+     * @param beacon_id
      *
-     * The Coug-UV vehicle ID, used to set the beacon ID.
      * The beacon ID is used to address acoustic messages.
      * An integer between 1 and 15 inclusive.
      */
-    this->declare_parameter("vehicle_ID", 1);
+    this->declare_parameter("beacon_id", 1);
 
     /**
      * @param water_salinity_ppt
@@ -100,7 +96,7 @@ public:
     this->declare_parameter("logging_verbosity", 2);
     logging_verbosity = this->get_parameter("logging_verbosity").as_int();
 
-    BID_E beaconId = (BID_E)(this->get_parameter("vehicle_ID").as_int());
+    BID_E beaconId = (BID_E)(this->get_parameter("beacon_id").as_int());
     uint16_t salinity = (uint16_t)(this->get_parameter("water_salinity_ppt").as_double()*10);
 
     if(logging_verbosity >= 2) {
@@ -406,7 +402,6 @@ public:
     msg.depth_local = acoFix.depthLocal;
     msg.vos = acoFix.vos;
     msg.rssi = acoFix.rssi;
-
 
     msg.includes_range = (acoFix.flags & RANGE_VALID)? true:false;
     msg.includes_usbl = (acoFix.flags & USBL_VALID)? true:false;
