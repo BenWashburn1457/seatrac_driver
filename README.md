@@ -1,5 +1,7 @@
 # SeaTrac x150/x110 Driver
 
+Developement branch for beacon firmware for version 3.7 and upward.
+
 This is a c++ driver for the Blueprint Subsea SeaTrac x100 series of USBL beacons.
 
 It is a fork of the seatrac_driver written by Pierre Narvor:
